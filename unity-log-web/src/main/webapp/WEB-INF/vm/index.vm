@@ -1,0 +1,134 @@
+#set($layout="empty.vm")
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Unity-log</title>
+    <link rel="stylesheet" type="text/css" href="$!homeModule.getTarget("/common/css/default/easyui.css")">
+    <link rel="stylesheet" type="text/css" href="$!homeModule.getTarget("/common/css/icon.css")">
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/jquery.min.js")"></script>
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/jquery.easyui.min.js")"></script>
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/task-common.js")"></script>
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/json2.js")"></script>
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/easyui-lang-zh_CN.js")"></script>
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/sorting.js")"></script>
+
+    <style type="text/css">
+        .rtitle{
+            height: 60px;
+        }
+        .panelline{
+        }
+        .panelline:hover{
+            background: none repeat scroll 0 0 #eaf2ff;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function(){
+
+            $('#dg').datagrid({
+                onSelect: function(index,row){
+                    $('#content').attr('src', row.link);
+                },
+                onLoadSuccess:function(){
+                    var rows = $(this).datagrid('getRows');
+                    if (rows.length){
+                        $(this).datagrid('selectRow',0);
+                    }
+                }
+            });
+
+            //加载左侧菜单
+            ShowLeftMenu();
+
+        });
+
+        function RefreshAllMemu(){
+            var epanels =  $('#showAllMenu').accordion("panels");
+            if(epanels.length>0){
+                $.each(epanels,function(n,value) {
+                    $('#showAllMenu').accordion('remove',0);
+                });
+            }
+            ShowLeftMenu();
+        }
+
+        function ShowLeftMenu(){
+
+            var homeUrl='$!homeModule.getTarget('')';
+            var homeUrlLastStr =homeUrl.substr(homeUrl.length-1,homeUrl.length-1);//取出字符串最后一个字符。
+            if(homeUrlLastStr!=='/'){
+                homeUrl=homeUrl+'/';
+            }
+
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: '$!homeModule.getTarget('/menu/getMenuTree.action')',
+                dataType: "json",
+                async: false,
+                error: function(request) {
+                    $.messager.alert("警告","加载菜单出错！");
+                },
+                success: function(result) {
+                    //$.messager.alert("后台可处理正确！");
+                    $.each(result,function(ky,vl) {
+
+                        var childrenHtml="";
+                        for(var i=0;i<vl.length;i++){
+                            var onemenu = vl[i];
+                            var onemenuurl = onemenu.menUrl;
+                            var onemenuurlFirstStr =onemenuurl.substr(0,1);
+                            if(onemenuurlFirstStr=='/'){
+                                onemenuurl=onemenuurl.substr(1,onemenuurl.length-1);
+                            }
+
+                            if(onemenuurl.indexOf("?")>-1){
+                                onemenuurl=homeUrl+onemenuurl+"&menId="+onemenu.menId;
+                            }else{
+                                onemenuurl=homeUrl+onemenuurl+"?menId="+onemenu.menId;
+                            }
+
+                            childrenHtml=childrenHtml+"<div data='"+onemenuurl+"' style='color:#0099FF;padding: 5px;cursor: pointer;' class='easyuipanel panelline'>"+onemenu.name+"</div>";
+                        }
+
+                        $('#showAllMenu').accordion('add', {title:ky,
+                            selected: false,
+                            content: childrenHtml,
+                        });
+
+
+                });
+                }
+            });
+
+            $('.easyuipanel').click(function(){
+                $('.easyuipanel').each(function(){
+                    if(!$(this).removeClass('accordion-header-selected').hasClass('panelline')){
+                        $(this).addClass('panelline');
+                    }
+
+                });
+                $(this).addClass('accordion-header-selected').removeClass('panelline');
+                $('#content').attr('src',$(this).attr('data'));
+            });
+        }
+    </script>
+</head>
+<body class="easyui-layout" bgcolor="white" style="padding-right: 5px;padding-left: 5px;margin-left: 8px;">
+<div data-options="region:'north',split:true" style="height:65px">
+    <img style="float:left" alt="" src="$!homeModule.getTarget("/common/images/alogo.jpg")">
+    <div style="color: #e68900;font-size: 34px;">统一日志查询平台</div>
+</div>
+#*<div data-options="region:'south',split:true" style="height:100px;"></div>*#
+<div data-options="region:'west',split:true" title="导航菜单" style="width:218px;">
+
+    <div id="showAllMenu" class="easyui-accordion">
+
+    </div>
+</div>
+<div data-options="region:'center'" style="padding: 5px;">
+    <iframe id="content" scrolling="auto" frameborder="0" style="width:100%;height:100%"></iframe>
+</div>
+</body>
+</html>

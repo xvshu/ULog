@@ -1,0 +1,13 @@
+<head>
+    <title>#if($title)$title#else 任务引擎系统 #end</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="$!homeModule.getTarget("/common/css/default/easyui.css")">
+    <link rel="stylesheet" type="text/css" href="$!homeModule.getTarget("/common/css/icon.css")">
+    <link rel="stylesheet" type="text/css" href="$!homeModule.getTarget("/common/css/common.css")">
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/jquery.min.js")"></script>
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/jquery.easyui.min.js")"></script>
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/task-common.js")"></script>
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/easyui-lang-zh_CN.js")"></script>
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/sorting.js")"></script>
+
+</head>

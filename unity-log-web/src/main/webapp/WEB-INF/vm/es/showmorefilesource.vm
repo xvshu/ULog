@@ -1,0 +1,66 @@
+#set($title = "查询页面")
+
+    <div id="showmore_main_father" style="width:99%; height:730px;background-color: white;font-size: 12px;" >
+        <div id ="showmore_main" style="position:absolute; width:99%; height:730px; overflow:scroll;background-color: white">
+
+            <table class="easyui-datagrid" id="resultContext" title="搜索结果" style="width:98%;height:700px;"
+                   data-options="singleSelect:true,collapsible:true,nowrap:false">
+                <thead>
+                <tr>
+                    <th data-options="field:'localHostIp',align:'left'" >Ip</th>
+
+                    <th data-options="field:'context',align:'left'"  >日志内容</th>
+                    <th data-options="field:'spendTime',align:'left'"  >消耗</th>
+                    <th data-options="field:'methodStart',align:'left'" formatter="getLocalTime" >开始时间</th>
+                    <th data-options="field:'methodDnd',align:'left'" formatter="getLocalTime" >结束时间</th>
+                    <th data-options="field:'treeId',align:'left'" >treeId</th>
+                    <th data-options="field:'requestId',align:'left'" >requestId</th>
+                    <th data-options="field:'transactionId',align:'left'" >transactionId</th>
+                    <th data-options="field:'className',align:'left'"  >类名</th>
+                    <th data-options="field:'methodName',align:'left'"  >方法</th>
+
+                    <th data-options="field:'domain',align:'left',hidden:true">域名</th>
+                    <th data-options="field:'contextType',align:'left',hidden:true" formatter="getLowercaseletters" >日志类型</th>
+                    <th data-options="field:'isBeginMethod',align:'left',hidden:true"  >isBeginMethod</th>
+                    <th data-options="field:'localHostName',align:'left',hidden:true" >机器名称</th>
+                    <th data-options="field:'level',align:'left',hidden:true" >级别</th>
+                    <th data-options="field:'created',align:'left',hidden:true" >生成日期</th>
+                    <th data-options="field:'remark',align:'left',hidden:true">备注</th>
+                </tr>
+                </thead>
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <script type="text/javascript">
+
+        var searchMsgJson =$!msg;
+        var domain = "$!searchWords.domain";
+        var created_begain_more_info = "$!searchWords.created_begain_more_info";
+        var localHostIp =" $!searchWords.localHostIp";
+        var upcount = -1;
+        var downcount = 0;
+        var commandtype = "";
+        var easyuijson ={};
+
+
+
+        $(function () {
+            var easyuijson = {};
+            var searchMsg = "";
+            var hits = searchMsgJson.hits.hits;
+            var printStr = "";
+            //组合符合easyui格式的json串
+            for (var i = 0; i < hits.length; i++) {
+                hits[i] = hits[i]._source["@message"];
+            }
+
+            easyuijson.rows=hits;
+            $('#resultContext').datagrid('loadData',easyuijson);
+
+        });
+    </script>
+

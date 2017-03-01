@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/opencharts/OpenCharts-min.js")"></script>
+    <link rel="stylesheet" type="text/css" href="$!homeModule.getTarget("/common/css/opencharts/style.css")">
+
+
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/highcharts/highcharts.js")"></script>
+
+    <script>
+
+        var searchMsgJson=null;
+        #if($!msg)
+            searchMsgJson =$!msg;
+        #end
+
+        var searchExceptionMsgJson=null;
+        #if($!msgException)
+            searchExceptionMsgJson =$!msgException;
+        #end
+
+
+
+        var mapEx = new Map();
+        $(function () {
+
+            if(searchExceptionMsgJson!=null){
+                var classExNames = searchExceptionMsgJson.aggregations.classNames.buckets;
+                for(var c=0;c<classExNames.length;c++){
+                    var methodsNames = classExNames[c].methodNames.buckets
+                    for(var m=0;m<methodsNames.length;m++){
+                        var oneCount = {};
+                        oneCount.className=classExNames[c].key;
+                        oneCount.methodName=methodsNames[m].key;
+                        oneCount.countExcetion=methodsNames[m].doc_count;
+                        mapEx.put(oneCount.className+oneCount.methodName,oneCount.countExcetion);
+                    }
+                }
+            }
+
+            var hits=[];
+            if(searchMsgJson!=null){
+                var classNames = searchMsgJson.aggregations.classNames.buckets;
+                for(var c=0;c<classNames.length;c++){
+                    var methodsNames = classNames[c].methodNames.buckets
+                    for(var m=0;m<methodsNames.length;m++){
+                        var oneCount = {};
+                        oneCount.className=classNames[c].key;
+                        oneCount.methodName=methodsNames[m].key;
+                        oneCount.countAll=methodsNames[m].doc_count;
+                        if(mapEx.containsKey(oneCount.className+oneCount.methodName)){
+                            oneCount.countExcetion=mapEx.get(oneCount.className+oneCount.methodName);
+                        }else{
+                            oneCount.countExcetion=0;
+                        }
+                        hits.push(oneCount)
+                    }
+                }
+            }
+
+            hits.sort(compare("countExcetion"));
+
+            var easyuijson ={};
+            easyuijson.rows=hits;
+            //datagrid手动载入数据，并进行分页处理
+            $('#resultContext').datagrid('loadData',easyuijson);
+
+            //logChar(hits);
+            loadHightCharts(hits);
+        });
+
+    </script>
+</head>
+<body>
+
+<div>
+    <div id="hichartsContainer" style="width:100%; height: 550px; margin: 0 auto"></div>
+</div>
+
+<script language="JavaScript">
+    function loadHightCharts(data) {
+        var title = {
+            text: '调用方法次数与出错次数'
+        };
+
+        var chart = {
+            type: 'line'
+        }
+
+        var yAxis = {
+            title: {
+                text: 'Count'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        };
+
+        var series =  [];
+
+        var countseries = {};
+        var exceptionseries={};
+
+        var countseriesdata = [];
+        var exceptionseriesdata=[];
+
+        countseries.name='调用次数';
+        exceptionseries.name='出错次数';
+
+
+
+
+        for(var i=0;i<data.length;i++){
+
+            var esOneMethoddate = {
+                x:data[i].i,
+                y:data[i].countAll,
+                msg:'类名:['+data[i].className+']  方法名:['+data[i].methodName+']  调用次数:['+data[i].countAll+']'
+            }
+            countseriesdata.push(esOneMethoddate);
+
+            var esOneMethodExdate = {
+                x:data[i].i,
+                y:data[i].countExcetion,
+                msg:'类名:['+data[i].className+']  方法名:['+data[i].methodName+']  出错次数:['+data[i].countExcetion+']'
+            }
+            exceptionseriesdata.push(esOneMethodExdate);
+        }
+
+        countseries.data=countseriesdata;
+        exceptionseries.data=exceptionseriesdata;
+        exceptionseries.color='red';
+        series.push(countseries);
+        series.push(exceptionseries);
+
+
+        var tooltip = {
+            shared: true, //是否共享提示，也就是X一样的所有点都显示出来
+            useHTML: true, //是否使用HTML编辑提示信息
+            headerFormat: '<table>',
+            pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+            '<td style="text-align: right;color: {series.color}">{point.msg}</td></tr>',
+            footerFormat: '</table>',
+            crosshairs: [{
+                width: 1,
+                color: 'green'
+            }]
+        };
+
+        var json = {};
+
+        json.chart = chart;
+        json.title = title;
+        json.yAxis = yAxis;
+        json.series = series
+        json.tooltip=tooltip;
+
+        $('#hichartsContainer').highcharts(json);
+    }
+</script>
+
+
+    <div style="height:15px;"></div>
+    <table class="easyui-datagrid" id="resultContext" title="搜索结果" style="width:98%;height:700px;"
+           data-options="singleSelect:true,collapsible:true,nowrap:false" >
+        <thead>
+        <tr>
+            <th data-options="field:'className',align:'left'"  >类名</th>
+            <th data-options="field:'methodName',align:'left'"  >方法</th>
+            <th data-options="field:'countAll',align:'left'"  >调用次数</th>
+            <th data-options="field:'countExcetion',align:'left'"  >出错次数</th>
+        </tr>
+        </thead>
+    </table>
+
+
+
+
+
+
+</body>
+</html>

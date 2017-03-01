@@ -1,0 +1,82 @@
+<script>
+
+    var menId = "$!menId";
+    var esappenderurl="$!esappenderurl";
+    var esfileurl="$!esfileurl";
+    var esperformsurl = "$!esperformsurl";
+    function tabSelectd(title){
+
+        // get the selected tab panel and its tab object
+        var pp = $('#tabs_body_ulog').tabs('getSelected');
+        var iscontent = pp.panel('options').content;    // the corresponding tab object
+
+        if(iscontent!=null){
+            if(iscontent.length>0){
+                $('#tabs_body_ulog').tabs('select', title);
+                return;
+            }
+        }
+
+        var charForUrl = "&";
+        if(title == "Appender"){
+            if(esappenderurl.length==0){
+                return;
+            }
+            if(esappenderurl.indexOf("?")<0){
+                charForUrl = "?";
+            }
+            addUrlToTab("$!homeModule.getTarget('')"+esappenderurl+charForUrl+"menId="+menId);
+       }else if(title == "TomcatFile"){
+            if(esfileurl.length==0){
+                return;
+            }
+            if(esfileurl.indexOf("?")<0){
+                charForUrl = "?";
+            }
+            addUrlToTab("$!homeModule.getTarget('')"+esfileurl+charForUrl+"menId="+menId);
+       }else{
+            if(esperformsurl.length==0){
+                return;
+            }
+            if(esperformsurl.indexOf("?")<0){
+                charForUrl = "?";
+            }
+            addUrlToTab("$!homeModule.getTarget('')"+esperformsurl+charForUrl+"menId="+menId);
+        }
+    }
+
+    function addUrlToTab(url){
+        // update the selected panel with new title and content
+        var tab = $('#tabs_body_ulog').tabs('getSelected');  // get selected panel
+        $('#tabs_body_ulog').tabs('update', {
+            tab: tab,
+            options: {
+                content: '<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:100%;height:100%;"></iframe>'
+            }
+        });
+    }
+
+    var titleids =[];
+    function addEsImgTab(title,url){
+        if ($('#tabs_body_ulog').tabs('exists', title)){
+            $('#tabs_body_ulog').tabs('select', title);
+        } else {
+            var content='<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:100%;height:100%;"></iframe>'
+            $('#tabs_body_ulog').tabs('add',{
+                title:title,
+                content:content,
+                closable:true
+            });
+        }
+
+    }
+</script>
+
+<div id="tabs_body_ulog" class="easyui-tabs" style="width:100%;height:630px;" data-options="onSelect:tabSelectd">
+##    <div title="Appender" style="padding:20px;display:none;" >
+##    </div>
+    <div title="TomcatFile" style="padding:20px;display:none;" >
+    </div>
+    <div title="Performs" style="padding:20px;display:none;" >
+    </div>
+</div>

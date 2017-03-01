@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/opencharts/OpenCharts-min.js")"></script>
+    <link rel="stylesheet" type="text/css" href="$!homeModule.getTarget("/common/css/opencharts/style.css")">
+
+    <script>
+
+        var searchMsgJson =$!msg;
+        $(function () {
+            var classNames = searchMsgJson.aggregations.classNames.buckets;
+            var hits=[];
+            for(var c=0;c<classNames.length;c++){
+                var methodsNames = classNames[c].methodNames.buckets
+                for(var m=0;m<methodsNames.length;m++){
+                    var oneCount = {};
+                    oneCount.className=classNames[c].key;
+                    oneCount.methodName=methodsNames[m].key;
+                    oneCount.countExcetion=methodsNames[m].doc_count;
+                    hits.push(oneCount)
+                }
+            }
+
+            logChar(hits);
+        });
+
+
+
+
+        function logChar(result){
+            var items = [];
+            var style = new OpenCharts.Style();
+            style.fillStyle = "#4169E1";
+            var itemss = [];
+
+            var maxValue=0;
+            var count=1;
+            var countfortime = 1;
+            if(result.length>100){
+                count=parseInt(result.length/100);
+
+            }
+            if(result.length>5) {
+                countfortime = Math.ceil(result.length / 5);
+            }
+            for(var i=0;i<result.length;i++){
+                if(i==0){
+                    itemss.push({strCaption : '',data :result[i].spendTime,itemStyle:'#D2691E',msg:'类名:['+result[i].localHostIp+']  方法名:['+getLocalTimes(result[i].created+1000)+']  调用次数:['+result[i].spendTime+']'});
+                } else {
+                    itemss.push(new OpenCharts.Item(result[i].spendTime,'','#4169E1','类名:['+result[i].localHostIp+']  方法名:['+getLocalTimes(result[i].created+1000)+']  调用次数:['+result[i].spendTime+']'));
+                }
+            }
+            var message = "${itemMsg}";
+            charts1 = new OpenCharts.Chart.AreaChart("canvas1");
+            charts1.strTitle = "监控记录";
+            charts1.addEventListener("mousedown",message);
+            charts1.render();
+        }
+
+        //var int=self.setInterval("reflashchar()",60000)
+    </script>
+</head>
+<body>
+
+
+<div style="">
+    <canvas id="canvas1" height="450px" width="1000px"  />
+</div>
+
+
+
+
+
+</body>
+</html>

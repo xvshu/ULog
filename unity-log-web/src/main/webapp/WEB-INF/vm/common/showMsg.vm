@@ -1,0 +1,4 @@
+<div id="showMsg">
+	#if(!$!actionMessages.empty)<div style="color:blue">#showSimpleMessage()</div>#end
+	#if(!$!actionErrors.empty)<div style="color:red">#showSimpleError()</div>#end
+</div>

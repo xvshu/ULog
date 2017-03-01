@@ -1,0 +1,31 @@
+<div style="font-size: 30px;text-align: center">翼龙贷日志查询系统——帮助信息</div>
+<div style="font-size: 20px;;text-align: left">
+    <br>
+    <br>
+    接入文档<br>
+    <div style="width:90%;height:2px;background-color: #676767"></div>
+    <br>
+    <div style="font-size: 18px;;text-align: left">
+        &nbsp;&nbsp;<a href="$!homeModule.getTarget("/common/pdf/UlogUseManual.pdf")" target="_blank">统一日志接入说明</a>
+    </div>
+    <br>
+    <br>
+    升级文档<br>
+    <div style="width:90%;height:2px;background-color: #676767"></div>
+    <br>
+    <div style="font-size: 18px;;text-align: left">
+        &nbsp;&nbsp;<a href="$!homeModule.getTarget("/common/pdf/ULogUpgradeManual.pdf")" target="_blank">统一日志升级说明</a>
+    </div>
+    <br>
+    <br>
+    常用URL<br>
+    <div style="width:90%;height:2px;background-color: #676767"></div>
+    <br>
+    <div style="font-size: 18px;;text-align: left">
+        &nbsp;&nbsp;查询普通es页面：/es/list.action<br>
+        &nbsp;&nbsp;查询index为test的es页面：/es/list.action?esindex=test<br>
+        &nbsp;&nbsp;查询index为test_flume性能监控页面：/esf/list.action?esindex=/esf/list.action?esindex=test_flume<br>
+        &nbsp;&nbsp;以tab形式展示以上三个页面：/esindex/list.action<br>
+    </div>
+
+</div>

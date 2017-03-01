@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+
+    <package name="es" namespace="/es" extends="unity-log-default">
+        <action name="getIpListByDomainName" method="getIpListByDomainName" class="com.el.unity.log.web.es.ESAction"></action>
+        <action name="getTypeListByDomainName" method="getTypeListByDomainName" class="com.el.unity.log.web.es.ESAction"></action>
+        <action name="*" method="{1}" class="com.el.unity.log.web.es.ESAction">
+            <result name="list">/WEB-INF/vm/es/list.vm</result>
+            <result>/WEB-INF/vm/es/{1}.vm</result>
+        </action>
+
+    </package>
+
+    <package name="esf" namespace="/esf" extends="unity-log-default">
+        <action name="getIpListByDomainName" method="getIpListByDomainName" class="com.el.unity.log.web.es.ESFileSourceAction"></action>
+        <action name="getTypeListByDomainName" method="getTypeListByDomainName" class="com.el.unity.log.web.es.ESFileSourceAction"></action>
+        <action name="*" method="{1}" class="com.el.unity.log.web.es.ESFileSourceAction">
+            <result name="list">/WEB-INF/vm/es/listfilesource.vm</result>
+            <result name="esmethodchar">/WEB-INF/vm/char/esmethodchar.vm</result>
+            <result name="esmethodExceptionchar">/WEB-INF/vm/char/esmethodExceptionchar.vm</result>
+            <result>/WEB-INF/vm/es/{1}.vm</result>
+        </action>
+
+    </package>
+
+
+    <package name="esindex" namespace="/esindex" extends="unity-log-default">
+        <action name="*" method="{1}" class="com.el.unity.log.web.es.IndexsAction">
+            <result name="list">/WEB-INF/vm/es/indexs.vm</result>
+            <result>/WEB-INF/vm/es/{1}.vm</result>
+        </action>
+    </package>
+
+    <package name="esimg" namespace="/esimg" extends="unity-log-default">
+        <action name="*" method="{1}" class="com.el.unity.log.web.img.ESIMGAction">
+            <result name="list">/WEB-INF/vm/char/manage.vm</result>
+            <result>/WEB-INF/vm/char/{1}.vm</result>
+        </action>
+    </package>
+
+
+</struts>

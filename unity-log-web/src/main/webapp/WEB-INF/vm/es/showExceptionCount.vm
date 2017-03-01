@@ -1,0 +1,128 @@
+#set($title = "ES管理页面")
+<div style="text-align: center;">
+
+
+
+
+    <form id="SerachByFile" action="/esf/serachES.action" >
+        <input  type="hidden" id = "esindex" name="esSerach.index"  value="$!esSerach.index"></input>
+        <input  type="hidden" id="estype"  name="esSerach.type"  value="$!esSerach.type"></input>
+        <input  type="hidden" id="esHasException"  name="esSerach.type"  value="$!esSerach.hasException"></input>
+        <input  type="hidden"  id = "esdomain" name="domainName"  value="$!domainName"></input>
+        <input  type="hidden"  id="esSerachorderFile"  name="esSerach.orderFile"  value="$!esSerach.orderFile"></input>
+        <input  type="hidden" id="hp_domain"   name="hp.domain"  value="$!hp.domain"></input>
+        <input  type="hidden"    name="hp.isBeginMethod"  value="yes"></input>
+        <input  type="hidden"  name="hp.SearchType" id="text-SearchType"  value="or"></input>
+        <input  type="hidden"  name="hp.HightLight" id="text-havaHightLight"  value="no"></input>
+        <input type="hidden" name="rows" id="rowshidden">
+        <input type="hidden" name="page" id="pagehidden">
+
+        <div style="height:15px;"></div>
+        <table class="easyui-datagrid" id="resultContext" title="搜索结果" style="width:98%;height:700px;"
+               data-options="singleSelect:true,collapsible:true,nowrap:false" >
+            <thead>
+            <tr>
+                <th data-options="field:'className',align:'left'"  >类名</th>
+                <th data-options="field:'methodName',align:'left'" >方法</th>
+                <th data-options="field:'countExcetion',align:'left'" >出错次数</th>
+            </tr>
+            </thead>
+        </table>
+
+    </form>
+
+
+
+
+
+    <div id="resultContexthtml"></div>
+
+
+
+
+    <script type="text/javascript">
+
+
+
+
+
+        $(function(){
+
+            #if(!($!msg))
+                $("<div class=\"datagrid-mask\"></div>").css({display:"block",width:"100%",height:$(window).height()}).appendTo("body");
+                $("<div class=\"datagrid-mask-msg\"></div>").html("正在处理，请稍候。。。").appendTo("body").css({display:"block",left:($(document.body).outerWidth(true) - 190) / 2,top:($(window).height() - 45) / 2});
+
+                $('#resultContext').datagrid("getPager").pagination("loading");
+                $('#pagehidden').val(1);$('#SerachByFile').submit();
+
+            #end
+
+        });
+
+
+            #if($!msg)
+            var searchMsgJson =$!msg;
+            $(function () {
+                var easyuijson ={};
+                var searchMsg="";
+                var classNames = searchMsgJson.aggregations.classNames.buckets;
+                var hits=[];
+                for(var c=0;c<classNames.length;c++){
+                    var methodsNames = classNames[c].methodNames.buckets
+                    for(var m=0;m<methodsNames.length;m++){
+                        var oneCount = {};
+                        oneCount.className=classNames[c].key;
+                        oneCount.methodName=methodsNames[m].key;
+                        oneCount.countExcetion=methodsNames[m].doc_count;
+                        hits.push(oneCount)
+                    }
+                }
+
+                easyuijson.rows=hits;
+
+                //datagrid手动载入数据，并进行分页处理
+                $('#resultContext').datagrid('loadData',easyuijson);
+                var p = $('#resultContext').datagrid('getPager');
+
+
+
+                choiceLastVlueInSecondSubmit("hpcontext","text","$!hp.context");
+
+                choiceLastVlueInSecondSubmit("hptreeId","text","$!hp.treeId");
+                choiceLastVlueInSecondSubmit("hprequestId","text","$!hp.requestId");
+                choiceLastVlueInSecondSubmit("hptransactionId","text","$!hp.transactionId");
+
+                choiceLastVlueInSecondSubmit("hplevel","text","$!hp.level");
+                choiceLastVlueInSecondSubmit("hpcreated-begain","text","$!hp.created_begain");
+                choiceLastVlueInSecondSubmit("hp-ocalHostIp","text","$!hp.localHostIp");
+                choiceLastVlueInSecondSubmit("hp-contextType","text","$!hp.contextType");
+                choiceLastVlueInSecondSubmit("hpcreated-end","text","$!hp.created_end");
+                $("#text-SearchType").val("$!hp.SearchType");
+                if($("#text-SearchType").val()=="and"){
+                    $("#SearchType-And").attr("checked","checked");
+                }else{
+                    $("#SearchType-And").removeAttr("checked");
+                }
+
+
+                $("#text-havaHightLight").val("$!hp.HightLight");
+                if($("#text-havaHightLight").val()=="yes"){
+                    $("#havaHightLight").attr("checked","checked");
+                }else{
+                    $("#havaHightLight").removeAttr("checked");
+                }
+
+                var eldomain = '$!hp.domain';
+                if(eldomain.length == 0 ){
+                    $("#isGlobalESSearch").attr("checked","checked");
+                }else{
+                    $("#isGlobalESSearch").removeAttr("checked");
+                }
+            });
+            #end
+
+    </script>
+
+
+
+

@@ -1,0 +1,23 @@
+备注：example应替换成为项目名称
+1，启动命令
+	bin/flume-ng agent --conf conf -z 10.1.128.36:12191,10.1.128.37:12191,10.1.128.177:12191 -p /flume/fileconf/example  -name agent1
+2，zk编辑地址
+	http://10.1.112.242:12000/zkWeb/
+	
+3，注意断点记录文件的位置
+	agent1.sources.sapi.fileWriteJson=/usr/local/flume-1.6.0/logs/example/fileJson-api.json 
+
+4，日志收集规则：
+
+	channels中配置
+	#toppic命名规则：flume_项目名_file_channel_日志类型_topic
+	
+	
+	sinks中配置
+	#indexType命名规则：flume_kafka_项目名称_tomcatfiles
+	#indexName命名规则：
+	#	api 日志统一一个indexName 为 logstash_apifiles
+	#	tomcat 日志命名规则：
+	#		tomcat 日志前台，后台，手机端各自独立一个indexName 规则为logstash_项目名称_tomcatfiles
+	#		其他日志量小的统一一个indexName 为 logstash_tomcatfiles
+

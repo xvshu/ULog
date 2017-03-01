@@ -1,0 +1,125 @@
+#set($layout="empty.vm")
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <title>操作成功！</title>
+    <style type="text/css">
+            #if(!$!actionMessages.empty)
+                #set($imgname="Success")
+            <!--
+            body,td,th {
+                font-family: 宋体;
+                font-size: 14px;
+                color: #666;
+            }
+            body {
+                background-color: #fff;
+                margin-left: 0px;
+                margin-top: 0px;
+                margin-right: 0px;
+                margin-bottom: 0px;
+            }
+            .tab{
+                width:550px;margin:120px auto auto auto
+            }
+            .tit{
+                background:#1EC615;height:30px;line-height:30px;padding-left:20px;color:#fff
+            }
+            .cont{
+                padding:10px;height:auto !important;height:70px;min-height:70px;color:black
+            }
+            .left{float:left;text-align:center;padding-top:10px;padding-left:10px;padding-right:10px}
+            .right{float:right;width:400px}
+            .blank{
+                padding:10px;text-align:center
+            }
+            .blank span{
+                border-left:1px solid #ccc;
+                border-top:1px solid #ccc;
+                border-right:1px solid #333;
+                border-bottom:1px solid #333;
+                padding:6px 14px 6px 14px;
+                font-size:12px;
+                cursor:pointer
+            }
+            .out{background:#FFF}
+            .over{background:#1EC615}
+            .over a:link {color: #fff;text-decoration: none}
+            .over a:visited {text-decoration: none;color: #fff}
+            .over a:hover {text-decoration: none;color: #fff}
+            .over a:active {text-decoration: none;color: #fff}
+
+            a:link {color: #666666;text-decoration: none}
+            a:visited {text-decoration: none;color: #666666}
+            a:hover {text-decoration: none;color: #666666}
+            a:active {text-decoration: none;color: #666666}
+            -->
+            #end
+            #if(!$!actionErrors.empty)
+                #set($imgname="err")
+            <!--
+            body,td,th {
+                font-family: 宋体;
+                font-size: 14px;
+                color: #666;
+            }
+            body {
+                background-color: #fff;
+                margin-left: 0px;
+                margin-top: 0px;
+                margin-right: 0px;
+                margin-bottom: 0px;
+            }
+            .tab{
+                width:550px;margin:120px auto auto auto;
+            }
+            .tit{
+                background:#c4231c;height:30px;line-height:30px;padding-left:20px;color:#fff
+            }
+            .cont{
+                padding:10px;height:auto !important;height:70px;min-height:70px;color:black
+            }
+            .left{float:left;text-align:center;padding-top:10px;padding-left:10px;padding-right:10px}
+            .right{float:right;width:400px}
+            .blank{
+                padding:10px;text-align:center
+            }
+            .blank span{
+                border-left:1px solid #ccc;
+                border-top:1px solid #ccc;
+                border-right:1px solid #333;
+                border-bottom:1px solid #333;
+                padding:6px 14px 6px 14px;
+                font-size:12px;
+                cursor:pointer
+            }
+            .out{background:#FFF}
+            .over{background:#c4231c}
+            .over a:link {color: #fff;text-decoration: none}
+            .over a:visited {text-decoration: none;color: #fff}
+            .over a:hover {text-decoration: none;color: #fff}
+            .over a:active {text-decoration: none;color: #fff}
+
+            a:link {color: #666666;text-decoration: none}
+            a:visited {text-decoration: none;color: #666666}
+            a:hover {text-decoration: none;color: #666666}
+            a:active {text-decoration: none;color: #666666}
+            -->
+            #end
+    </style></head>
+<body bgcolor="white">
+<div class="left"><div class="left"><img src="/images/$!{imgname}.png" /></div>
+    <div class="left" style="width:200px">
+        <div class="cont">
+            #if(!$!actionMessages.empty)#showSimpleMessage()#end
+				#if(!$!actionErrors.empty)#showSimpleError()#end
+        </div>
+        <div class="blank">
+				<span class="over">
+				<a href='$!{refer}'>返回</a>
+            </span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

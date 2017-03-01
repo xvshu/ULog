@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+	   default-autowire="byName">
+
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<!-- 基本属性 url、user、password -->
+		<property name="driverClassName" value="${unity-log.mysql.jdbc.driver.class}"/>
+		<property name="url" value="${unity-log.mysql.jdbc.url}" />
+		<property name="username" value="${unity-log.mysql.jdbc.username}" />
+		<property name="password" value="${unity-log.mysql.jdbc.password}" />
+		<!-- 配置初始化大小、最小、最大-->
+		<property name="initialSize" value="${unity-log.mysql.jdbc.initialPoolSize}" />
+		<property name="minIdle" value="${unity-log.mysql.jdbc.minPoolSize}" />
+		<property name="maxActive" value="${unity-log.mysql.jdbc.maxPoolSize}" />
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="${unity-log.mysql.jdbc.maxWait}" />
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="${unity-log.mysql.jdbc.timeBetweenEvictionRunsMillis}" />
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="${unity-log.mysql.jdbc.maxIdleTime}" />
+		<property name="validationQuery" value="select now()" />
+		<property name="testWhileIdle" value="${unity-log.mysql.jdbc.testWhileIdle}" />
+		<property name="testOnBorrow" value="${unity-log.mysql.jdbc.testOnBorrow}" />
+		<property name="testOnReturn" value="${unity-log.mysql.jdbc.testOnReturn}" />
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="${unity-log.mysql.jdbc.poolPreparedStatements}" />
+	</bean>
+
+</beans>

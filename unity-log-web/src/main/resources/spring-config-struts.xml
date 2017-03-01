@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean name="velocityTools" class="java.util.HashMap">
+        <constructor-arg>
+            <map>
+                <entry key="stringEscapeUtils">
+                    <bean class="com.el.common.utils.StringEscapeUtils"/>
+                </entry>
+                <entry key="stringUtils">
+                    <bean class="com.el.common.utils.StringUtils"/>
+                </entry>
+                <entry key="hostUtil">
+                    <bean class="com.el.common.utils.HostUtil"/>
+                </entry>
+                <entry key="dateFormatUtils">
+                    <bean class="com.el.unity.log.common.utils.DateFormatUtils"/>
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
+    <bean id="velocityUrl" class="java.util.HashMap">
+        <constructor-arg>
+            <map>
+                <entry key="homeModule">
+                    <bean class="com.el.common.url.ElUrl">
+                        <property name="url" value="http://${unity-log.domain.name}/"/>
+                    </bean>
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+</beans>

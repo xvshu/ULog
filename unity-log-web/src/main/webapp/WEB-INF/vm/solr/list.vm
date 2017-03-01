@@ -1,0 +1,127 @@
+#set($title = "Solr管理页面")
+<style type="text/css">
+    .datagrid-cell, .datagrid-cell-group, .datagrid-header-rownumber, .datagrid-cell-rownumber {
+        font-size: 12px;
+    }
+
+    .datagrid-header .datagrid-cell span {
+        font-size: 16px;
+    }
+
+    table tr td {
+        height: 30px;
+    }
+
+    .even {
+        background: #c2cdda;
+    }
+    .padding20{
+        margin-right: 10px;
+    }
+
+</style>
+<div style="padding: 20px;text-align: center;">
+    #if($!msg)
+        <span style="color: red;">$!msg</span>
+    #end
+    <form id="indexById" action="/solr/indexById.action" method="POST">
+        <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+            <thead>
+            <tr style="background-color: #e0ecff;">
+                <th   data-options="field:'s1',align:'right'" width="25%"></th>
+                <th   data-options="field:'s2',align:'right'" width="25%">根据Id更新Solr</th>
+                <th   data-options="field:'s3',align:'right'" width="25%"></th>
+                <th  data-options="field:'s4',align:'right'" width="25%"></th>
+            </tr>
+            </thead>
+            <tr>
+                <td><span class="padding20">Solr Type:</span>
+                    #if($!list && $list.size()>0)
+                        <select  name="beanName" style="width: 120px;">
+                            #foreach($type in $list)
+                                <option value="$type.getType()">$type.getName()</option>
+                            #end
+                        </select>
+                    #end
+                </td>
+                <td>
+                    <span class="padding20">主键:</span><input type="text" name="id"  />
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    <input type="button" value="更新" onclick="$('#indexById').submit()" />
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div style="height: 30px;text-align: left;">&nbsp;<span style="color:red;">时间为空，创建全部索引</span></div>
+    <form action="$!homeModule.getTarget("/solr/indexByDate.action")" method="POST">
+        <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+            <thead>
+            <tr style="background-color: #e0ecff;">
+                <th   data-options="field:'s1',align:'right'" width="25%"></th>
+                <th   data-options="field:'s2',align:'right'" width="25%">根据时间更新Solr</th>
+                <th   data-options="field:'s3',align:'right'" width="25%"></th>
+                <th   data-options="field:'s4',align:'right'" width="25%"></th>
+            </tr>
+            </thead>
+            <tr>
+                <td><span class="padding20">Solr Type:</span>
+                    #if($!list && $list.size()>0)
+                        <select style="width:120px;" name="beanName">
+                            #foreach($type in $list)
+                                <option value="$type.getType()">$type.getName()</option>
+                            #end
+                        </select>
+                    #end
+                </td>
+                <td>
+                    <span class="padding20">开始时间:</span><input type="text" name="startDate"  />
+                </td>
+                <td>
+                    <span class="padding20">结束时间:</span><input type="text" name="endDate"  />
+                </td>
+                <td>
+                    <input type="submit" value="更新" />
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div style="height: 30px;">&nbsp;</div>
+    <form action="$!homeModule.getTarget("/solr/indexByIds.action")" method="POST">
+        <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+            <thead>
+            <tr style="background-color: #e0ecff;">
+                <th   data-options="field:'s1',align:'right'" width="25%"></th>
+                <th   data-options="field:'s2',align:'right'" width="25%">根据ids更新Solr</th>
+                <th   data-options="field:'s3',align:'right'" width="25%"></th>
+                <th   data-options="field:'s4',align:'right'" width="25%"></th>
+            </tr>
+            </thead>
+            <tr>
+                <td><span class="padding20">Solr Type:</span>
+                    #if($!list && $list.size()>0)
+                        <select style="width:120px;" name="beanName">
+                            #foreach($type in $list)
+                                <option value="$type.getType()">$type.getName()</option>
+                            #end
+                        </select>
+                    #end
+                </td>
+                <td>
+                    <span class="padding20">开始Id:</span><input type="text" name="startId"  />
+                </td>
+                <td>
+                    <span class="padding20">结束Id:</span><input type="text" name="endId"  />
+                </td>
+                <td>
+                    <input type="submit" value="更新" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+    });
+</script>

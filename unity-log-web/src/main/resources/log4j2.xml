@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- status用于设置log4j2自身内部的信息输出，可以不设置，当设置成trace时，你会看到log4j2内部各种详细输出。 -->
+<configuration status="warn">
+    <appenders>
+        <!--这个输出控制台的配置-->
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d [%7r] %6p - %30.30c - %m \n" />
+        </Console>
+        <!--<ELFlumeAppender name="FLUME" hostname="${unity-log.flume.ip}" port="${unity-log.flume.point}" unsafeMode="true" domain="${unity-log.flume.domain.name}" >-->
+            <!--<PatternLayout pattern="%d [%7r] %6p - %30.30c - %m \n"/>-->
+        <!--</ELFlumeAppender>-->
+        <RollingFile name="FILE-PERFORMANCE" fileName="${unity-log.log.path}/apilogs/ulog-performance.log"
+                     filePattern="${unity-log.log.path}/ulog-performance.log.%d{yyyy-MM-dd}">
+            <PatternLayout pattern="%m \n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="FILE-ALL" fileName="${unity-log.log.path}/apilogs/ulog-all.log"
+                     filePattern="${unity-log.log.path}/apilogs/ulog-all.log.%d{yyyy-MM-dd}">
+            <PatternLayout pattern="%C|%M|%p|%X{teid}|%X{rtid}|%X{tnid}|%m \n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="FILE-SQL" fileName="${unity-log.log.path}/apilogs/ulog-sql.log"
+                     filePattern="${unity-log.log.path}/apilogs/ulog-sql.log.%d{yyyy-MM-dd}">
+            <PatternLayout pattern="%C|%M|%p|%X{teid}|%X{rtid}|%X{tnid}|%m \n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="FILE-ACTION" fileName="${unity-log.log.path}/apilogs/ulog-action.log"
+                     filePattern="${unity-log.log.path}/apilogs/ulog-action.log.%d{yyyy-MM-dd}">
+            <PatternLayout pattern="%C|%M|%p|%X{teid}|%X{rtid}|%X{tnid}|%m \n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="FILE-VELOCITY" fileName="${unity-log.log.path}/apilogs/ulog-velocity.log"
+                     filePattern="${unity-log.log.path}/apilogs/ulog-velocity.log.%d{yyyy-MM-dd}">
+            <PatternLayout pattern="%C|%M|%p|%X{teid}|%X{rtid}|%X{tnid}|%m \n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="FILE-LOG-AOP" fileName="${unity-log.log.path}/apilogs/ulog-logaop.log"
+                     filePattern="${unity-log.log.path}/apilogs/ulog-logaop.log.%d{yyyy-MM-dd}">
+            <PatternLayout pattern="%C|%M|%p|%X{teid}|%X{rtid}|%X{tnid}|%m \n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="FILE-SERVICE" fileName="${unity-log.log.path}/apilogs/ulog-service.log"
+                     filePattern="${unity-log.log.path}/apilogs/ulog-service.log.%d{yyyy-MM-dd}">
+            <PatternLayout pattern="%C|%M|%p|%X{teid}|%X{rtid}|%X{tnid}|%m \n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+        </RollingFile>
+    </appenders>
+
+    <loggers>
+
+        <Logger name="com.el.unity.log.client.aop.ULogProxyFactoryBean" level="info" additivity="false">
+            <appender-ref ref="FILE-PERFORMANCE" />
+            <appender-ref ref="CONSOLE" />
+        </Logger>
+
+        <Logger name="com.ibatis" level="info" additivity="false">
+            <appender-ref ref="FILE-SQL" />
+        </Logger>
+        <Logger name="java.sql" level="info" additivity="false">
+            <appender-ref ref="FILE-SQL" />
+        </Logger>
+        <Logger name="org.apache.velocity" level="info" additivity="false">
+            <appender-ref ref="FILE-VELOCITY" />
+            <appender-ref ref="FILE-ALL" />
+        </Logger>
+        <Logger name="com.el.unity.log" level="info" additivity="false">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE-ALL" />
+        </Logger>
+        <Logger name="com.el.unity.log.common.log.TaskLogAop" level="info" additivity="false">
+            <appender-ref ref="FILE-LOG-AOP" />
+        </Logger>
+        <Logger name="com.el.unity.log.info.impl.DebugManagerService" level="info" additivity="false">
+            <appender-ref ref="FILE-ALL" />
+        </Logger>
+        <Logger name="com.el.unity.log.web" level="info" additivity="false">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE-ACTION" />
+            <appender-ref ref="FILE-ALL" />
+
+        </Logger>
+        <Logger name="com.el.unity.log.service" level="info" additivity="false">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE-ALL" />
+        </Logger>
+        <Logger name="com.el.common.example.ExampleHelper" level="info" additivity="false">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE-ALL" />
+        </Logger>
+        <Logger name="org.apache.flume" level="info" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </Logger>
+
+        <Root level="info">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE-ALL" />
+        </Root>
+    </loggers>
+</configuration>

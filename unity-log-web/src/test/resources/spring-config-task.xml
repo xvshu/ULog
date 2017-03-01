@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="taskClientProvider" class="com.el.common.hessian.ElHessianProxyFactoryBean">
+        <property name="serviceUrl" value="http://el.task.net/hessian/hessianTaskProvider"/>
+        <property name="serviceInterface" value="com.el.task.client.rpc.ITaskProvider"/>
+        <property name="overloadEnabled" value="true"/>
+        <property name="connectTimeOut" value="300000"/>
+        <property name="readTimeOut" value="300000"/>
+        <property name="poolMaxSize" value="30"/>
+        <property name="token" value="123456"/>
+    </bean>
+
+    <bean id="taskConfig" class="com.el.task.client.taskhandle.TaskConfig">
+        <property name="baseTempDir" value="${unity-log-client.base.temp.dir}"/>
+    </bean>
+
+    <bean id="taskClient" class="com.el.task.client.taskhandle.TaskClient">
+        <property name="taskConfig" ref="taskConfig"/>
+        <property name="taskProviderClient" ref="taskClientProvider"/>
+    </bean>
+
+    <bean id="pushTaskHandler" class="com.el.task.client.api.PushTaskHandler">
+        <property name="taskClient" ref="taskClient"/>
+    </bean>
+    <bean id="repushLocalTaskHandler" class="com.el.task.client.taskhandle.RepushLocalTaskHandler">
+        <property name="taskClient" ref="taskClient"/>
+    </bean>
+    <bean id="archeiveTaskTimerScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <bean class="org.springframework.scheduling.quartz.CronTriggerBean">
+                    <property name="jobDetail">
+                        <bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+                            <property name="targetObject" ref="repushLocalTaskHandler"/>
+                            <property name="targetMethod" value="repushLocalTasks"/>
+                            <property name="concurrent" value="false"/>
+                        </bean>
+                    </property>
+                    <property name="cronExpression" value="0 0/5 * * * ?"/>
+                </bean>
+            </list>
+        </property>
+        <property name="autoStartup">
+            <value>true</value>
+        </property>
+        <property name="startupDelay" value="120"/>
+        <property name="quartzProperties">
+            <props>
+                <prop key="org.quartz.threadPool.threadCount">1</prop>
+            </props>
+        </property>
+    </bean>
+
+
+</beans>

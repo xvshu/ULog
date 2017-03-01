@@ -1,0 +1,14 @@
+#if($exception)
+    $!exception.printStackTrace()
+    #if($!exception.class.simpleName=="NoSuchMethodException")
+        $!response.setStatus(404)
+    404! 您请求的内容不存在
+    #elseif($!exception.message)
+    出错了：  $!exception.message
+    #else
+    出错了系统错误！
+    #end
+#else
+    #showSimpleError()
+#end
+<a href="javascript:history.go(-1) " ><b>返回</b></a>

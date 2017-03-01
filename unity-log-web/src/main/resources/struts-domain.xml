@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+
+    <package name="domain" namespace="/domain" extends="unity-log-default">
+        <action name="getAllDomain" method="getAllDomain" class="com.el.unity.log.web.domain.DomainAction">
+        </action>
+        <action name="*" method="{1}" class="com.el.unity.log.web.domain.DomainAction">
+            <result name="list">/WEB-INF/vm/domain/list.vm</result>
+            <result>/WEB-INF/vm/domain/{1}.vm</result>
+        </action>
+    </package>
+
+
+</struts>

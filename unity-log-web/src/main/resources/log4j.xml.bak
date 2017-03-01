@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+   <appender name="FLUME" class="com.el.unity.log.client.Log4jFlumeAppender">
+        <param name="hostname" value="${unity-log.flume.ip}"/>
+        <param name="port" value="${unity-log.flume.point}"/>
+        <param name="unsafeMode" value="true"/>
+        <param name="domain" value="${unity-log.flume.domain.name}"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%X{rtid}] [%X{teid}]  %d [%7r] %6p - %30.30c - %m \n"/>
+        </layout>
+    </appender>
+
+    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%X{rtid}] [%X{teid}] [%X{sdme}] [%7r] %6p - %30.30c - %m \n"/>
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="info"/>
+        </filter>
+    </appender>
+    <appender name="FILE-ALL" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <param name="file" value="${unity-log.log.path}/unity-log-all.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%7r] %6p - %30.30c - %m \n"/>
+        </layout>
+    </appender>
+    <appender name="FILE-SQL" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <param name="file" value="${unity-log.log.path}/solr-admin-sql.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%7r] %6p - %30.30c - %m \n"/>
+        </layout>
+    </appender>
+    <appender name="FILE-ACTION" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <param name="file" value="${unity-log.log.path}/solr-admin-action.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%7r] %6p - %30.30c - %m \n"/>
+        </layout>
+    </appender>
+    <appender name="FILE-VELOCITY" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <param name="file" value="${unity-log.log.path}/solr-admin-velocity.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%7r] %6p - %30.30c - %m \n"/>
+        </layout>
+    </appender>
+    <appender name="FILE-LOG-AOP" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <param name="file" value="${unity-log.log.path}/solr-admin-logaop.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%7r] %6p - %30.30c - %m \n"/>
+        </layout>
+    </appender>
+    <category name="com.ibatis" additivity="false">
+        <priority value="info"/>
+        <appender-ref ref="FILE-SQL"/>
+
+    </category>
+    <category name="java.sql" additivity="false">
+        <priority value="info"/>
+        <appender-ref ref="FILE-SQL"/>
+
+    </category>
+
+    <category name="org.apache.velocity" additivity="false">
+        <priority value="info"/>
+        <appender-ref ref="FILE-VELOCITY"/>
+        <appender-ref ref="FILE-ALL"/>
+
+    </category>
+    <category name="com.el.unity.log" additivity="false">
+        <priority value="info"/>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE-ALL"/>
+
+    </category>
+    <category name="com.el.unity.log.common.log.TaskLogAop" additivity="false">
+        <priority value="info"/>
+        <appender-ref ref="FILE-LOG-AOP"/>
+
+    </category>
+    <category name="com.el.unity.log.info.impl.DebugManagerService" additivity="false">
+        <priority value="info"/>
+        <appender-ref ref="FILE-ALL"/>
+
+    </category>
+    <category name="com.el.unity.log.web" additivity="false">
+        <priority value="info"/>
+        <appender-ref ref="FILE-ACTION"/>
+        <appender-ref ref="FILE-ALL"/>
+
+    </category>
+    <category name="com.el.unity.log.service" additivity="false">
+        <priority value="info"/>
+        <appender-ref ref="FILE-ALL"/>
+
+    </category>
+    <category name="com.el.common.example.ExampleHelper" additivity="false">
+        <priority value="info"/>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE-ALL"/>
+
+    </category>
+    <category name="org.apache.flume" additivity="false">
+        <priority value="info"/>
+      <!--  <appender-ref ref="FLUME"/>-->
+        <appender-ref ref="CONSOLE"/>
+
+    </category>
+    <root>
+        <priority value="info"/>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE-ALL"/>
+
+    </root>
+</log4j:configuration>

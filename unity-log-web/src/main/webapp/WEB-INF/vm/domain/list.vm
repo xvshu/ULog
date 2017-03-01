@@ -1,0 +1,243 @@
+#set($title = "ES管理页面")
+<div style="text-align: center;">
+        <table class="table" style="width:98%;height:auto;">
+            <tr >
+                <td style="text-align:left">
+                    域名
+                    <input class="easyui-textbox" style="width:20%" type="text" id="searchWord" name="searchWord" ></input>
+                    &nbsp;
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-search"  onclick="SearchContext()" style="width:100px;">搜索</a>
+                </td>
+            </tr>
+        </table >
+
+        <table class="easyui-datagrid" id="resultContext" title="查询结果" style="width:98%;height:60%"
+               data-options="singleSelect:true,method:'post',collapsible:true,url:'$!homeModule.getTarget('/domain/getPageDomain.action')'" toolbar="#edittoolbar" pagination="true">
+            <thead>
+            <tr>
+                <th data-options="field:'name',align:'left'"  style="width:40%;" >域名</th>
+                <th data-options="field:'created',align:'left'" formatter="getLocalTime"  style="width:20%;" >创建时间</th>
+                <th data-options="field:'remark',align:'left'" style="width:20%;">备注</th>
+            </tr>
+            </thead>
+        </table>
+
+        <div id="edittoolbar">
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" onclick="SaveEntity()" plain="true">添加</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" onclick="SaveEntityList()" plain="true">批量添加</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" onclick="Edit()" plain="true">修改</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" onclick="Delete()" plain="true">删除</a>
+        </div>
+
+        <!--  ******************************添加菜单弹出框--start**************************************  -->
+
+            <div id="dlgForNew" class="easyui-dialog" style="width: 400px; height: 280px; padding: 10px 20px;"
+                 closed="true" buttons="#dlg-buttons">
+                <form id="FromForNew"  method="post">
+
+                    <table>
+                        <tr>
+                            <td style="text-align: right"></td>
+                            <td style="text-align: left">
+                                <input type="text" name="domainForNew.created" style="height:0px;border-style:none" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right">域名</td>
+                            <td style="text-align: left">
+                                <input name="domainForNew.name" id="domainForNewName" class="easyui-textbox"  data-options="required:true,missingMessage:'必须填写'" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right">备注</td>
+                            <td style="text-align: left">
+                                <input name="domainForNew.remark" class="easyui-textbox"  />
+
+                            </td>
+                        </tr>
+
+                    </table>
+
+                </form>
+            </div>
+            <div id="dlg-buttons">
+                <a href="javascript:void(0)" class="easyui-linkbutton" style="width:80px;" onclick="Save()" iconcls="icon-save">保存</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" style="width:80px;" onclick="javascript:$('#dlgForNew').dialog('close')" iconcls="icon-cancel">取消</a>
+            </div>
+
+
+
+
+    <!--  ******************************批量添加弹出框--start************************************** -->
+            <div id="dlgForNewList" class="easyui-dialog" style="width: 400px; height: 280px; padding: 10px 20px;"
+               closed="true" buttons="#dlg-list-buttons">
+                  <form id="FromForNewList"  method="post">
+
+                      <table>
+                          <tr>
+                              <td style="text-align: left">
+                                 域名之间用 | 符号间隔，例如： el.main.com|el.pay.com
+                              </td>
+                          </tr>
+                          <tr>
+                              <td style="text-align: left">
+                                  <input name="domainForListNew"  class="easyui-textbox" data-options="multiline:true" data-options="required:true,missingMessage:'必须填写'" style="width:300px;height:150px" />
+                              </td>
+                          </tr>
+                      </table>
+                  </form>
+          </div>
+          <div id="dlg-list-buttons">
+              <a href="javascript:void(0)" class="easyui-linkbutton" style="width:80px;" onclick="SaveList()" iconcls="icon-save">保存</a>
+              <a href="javascript:void(0)" class="easyui-linkbutton" style="width:80px;" onclick="javascript:$('#dlgForNewList').dialog('close')" iconcls="icon-cancel">取消</a>
+          </div>
+
+
+    <script type="text/javascript">
+        var Formurl ="";
+        var type="";
+
+        function SearchContext(){
+            $('#resultContext').datagrid('load',{
+                searchWord:$('#searchWord').val()
+            });
+        }
+
+        //批量保存域名
+        function SaveList(){
+            $("#FromForNewList").form("submit", {
+                url:'$!homeModule.getTarget('/domain/addListDomain.action')',
+                onsubmit: function () {
+                    return $(this).form("validate");
+                },
+                success: function (result) {
+                    if ($.trim(result).replace(/\"/g,"") == "success") {
+                        $.messager.alert("提示信息", "操作成功");
+                        $("#dlgForNewList").dialog("close");
+                        $("#resultContext").datagrid("load");
+                    }
+                    else {
+                        $.messager.alert("提示信息", result);
+                    }
+                }
+            });
+        }
+
+
+        /**
+         *编辑对象
+         * @constructor
+         */
+        function Edit(){
+            type="edit";
+            Formurl='$!homeModule.getTarget('/domain/editUlogDomian.action')';
+            var row = $("#resultContext").datagrid("getSelected");
+            if(row){
+
+                //$('#domainForNewName').textbox({ disabled: true });
+                $('#domainForNewName').textbox({ readonly: true });
+                OpenDialog('dlgForNew','修改','FromForNew','edit','resultContext');
+            }else{
+                $.messager.alert("提示信息", "请您先选中您要编辑的项目。");
+            }
+
+        }
+
+        function SaveEntity(){
+            Formurl='$!homeModule.getTarget('/domain/addDomain.action')';
+            //$("domainForNewName").removeAttr("disabled");
+            $('#domainForNewName').textbox({ readonly: false });
+            OpenDialog( 'dlgForNew','添加','FromForNew','','');
+        }
+
+        //弹出批量添加框
+        function SaveEntityList(){
+            OpenDialog( 'dlgForNewList','批量添加','FromForNewList','','');
+        }
+
+
+
+
+        /**
+         * easyui-打开某个对话框
+         * @param dialogID 对话框id
+         * @param dialogTitle 要显示的标题
+         * @param formID 要加载的from（编辑操作时补充数据）
+         *  @param methodType 操作类型：new：新增 ， edit：编辑
+         * @param datagridId 数据源id
+         */
+        function OpenDialog( dialogID ,dialogTitle,formID,methodType,datagridId){
+            $("#"+dialogID+"").dialog("open").dialog('setTitle', dialogTitle);
+            $("#"+formID+"").form("clear");
+            if(methodType=="edit"){
+                var row = $("#"+datagridId+"").datagrid("getSelected");
+                del(row,"name","domainForNew.name");
+                del(row,"remark","domainForNew.remark");
+                del(row,"created","domainForNew.created");
+                row["domainForNew.created"]=getLocalTime(row["domainForNew.created"],'','');
+                if (row) {
+
+                    $("#"+formID+"").form("load", row);
+
+                }
+            }
+        }
+
+
+        /**
+         *保存数据
+         * @constructor
+         */
+        function Save(){
+            SaveDomain();
+        }
+
+        function SaveDomain(){
+            $("#FromForNew").form("submit", {
+                url:Formurl,
+                onsubmit: function () {
+                    return $(this).form("validate");
+                },
+                success: function (result) {
+                    if (result == "1") {
+                        $.messager.alert("提示信息", "操作成功");
+                        $("#dlgForNew").dialog("close");
+                        $("#resultContext").datagrid("load");
+                    }
+                    else {
+                        $.messager.alert("提示信息", "操作失败");
+                    }
+                }
+            });
+        }
+
+        /**
+         *删除数据
+         * @constructor
+         */
+        function Delete() {
+            var row = $('#resultContext').datagrid('getSelected');
+            if (row) {
+                $.messager.confirm('危险', '您确定要删除本项目吗？', function (r) {
+                    if (r) {
+                        $.post(' $!homeModule.getTarget('/domain/deleteDomain.action')', { DomainName: row.name }, function (result) {
+                            if (result == "1") {
+                                $.messager.alert("提示信息", "操作成功");
+                                $("#resultContext").datagrid("reload");
+                            }
+                            else {
+                                $.messager.alert("提示信息", "操作失败");
+                            }
+                        }, 'json');
+                    }
+                });
+            }else{
+                $.messager.alert("提示信息", " 请您先选中您要删除的项目。");
+            }
+        }
+
+
+
+
+    </script>
+</div>

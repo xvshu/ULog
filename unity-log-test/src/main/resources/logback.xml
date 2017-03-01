@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <!-- 声明变量 -->
+    <property name="log.base" value="/data/logs/web"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %class [%file:%line] - %msg%n</pattern>
+        </layout>
+    </appender>
+    <property name="log2.base" value="/data/logs/web"/>
+    <appender name="flume" class="com.el.unity.log.client.LogBackFlumeAppender">
+        <param name="hostname" value="192.168.2.16"/>
+        <param name="port" value="12301"/>
+        <param name="unsafeMode" value="true"/>
+        <param name="debugLog" value="true"/>
+        <param name="domain" value="domain"/>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %class [%file:%line] - %msg%n</pattern>
+        </layout>
+    </appender>
+    <logger name="com" level="debug" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="flume"/>
+    </logger>
+    <root level="debug">
+        <appender-ref ref="console"/>
+        <appender-ref ref="flume"/>
+    </root>
+
+</configuration>

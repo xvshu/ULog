@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd" default-lazy-init="true">
+    <dubbo:application name="ulog-test-provider" owner="ulog-test" organization="dubbox"/>
+    <dubbo:registry protocol="zookeeper" address="${saf-zk-address}" id="elZookeeper" timeout="15000"/>
+    <dubbo:protocol name="dubbo" port="-1"  />
+    <dubbo:monitor protocol="registry"  />
+
+    <dubbo:consumer filter="dubboFilter"/>
+    <dubbo:provider filter="dubboFilter"/>
+
+    <!--<dubbo:reference interface="com.el.wst.soa.service.logic.record.ILogicRecordService" id="logicRecordService" group="wst-soa11" version="1.1.0"-->
+                     <!--timeout="120000" protocol="dubbo" registry="elZookeeper" check="false" lazy="true" retries="2" />-->
+
+
+</beans>

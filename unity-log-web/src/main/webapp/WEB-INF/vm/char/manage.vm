@@ -1,0 +1,54 @@
+#set($title = "ES管理页面")
+<div style="text-align: center;">
+
+    <form id="SerachByFile" action="/esf/serachES.action" >
+        <input  type="hidden" id="esindex"  name="esSerach.index"  value="$!esSerach.index"></input>
+        <input  type="hidden" id="estype"  name="esSerach.type"  value="$!esSerach.type"></input>
+        <input  type="hidden"  name="esSerach.orderFile"  value="created"></input>
+        <input  type="hidden" id="esdomain"  name="hp.domain"  value="$!hp.domain"></input>
+        <input  type="hidden"  name="hp.SearchType" id="text-SearchType"  value="or"></input>
+        <input  type="hidden"  name="hp.HightLight" id="text-havaHightLight"  value="no"></input>
+
+
+        <table class="table" style="width:98%;height:auto;">
+            <tr >
+                <td style="text-align:left">
+                    类名
+                    <input class="easyui-textbox" style="width:300px" type="text" id="esclassname" name="hp.className" ></input>
+                    方法名
+                    <input class="easyui-textbox" style="width:150px" type="text" id="esmethodname" name="hp.methodName" ></input>
+                    &nbsp;&nbsp;
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-search"  onclick="SerachEs()"style="width:100px;">搜索</a>
+                </td>
+
+            </tr>
+        </table >
+
+        <div style="height:15px;"></div>
+    </form>
+
+    <div id ="img_EsInfo" style="width:100%;">
+
+    </div>
+
+
+
+    <script type="text/javascript">
+        function SerachEs(){
+            var esindex = $("#esindex").val();
+            var estype = $("#estype").val();
+            var esdomain = $("#esdomain").val();
+            var esclassname =$("#esclassname").textbox("getValue");
+            var esmethodname =$("#esmethodname").textbox("getValue");
+
+            var url="$!homeModule.getTarget('/esimg/eschar.action')"+
+                    "?esindex="+esindex+"&estype="+estype+"&domain="+esdomain+
+                    "&className="+esclassname+"&methodName="+esmethodname;
+
+            $("#img_EsInfo").html('<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:100%;height:550px;"></iframe>');
+        }
+    </script>
+
+
+
+

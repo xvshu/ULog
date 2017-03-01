@@ -1,0 +1,453 @@
+#set($title = "系统信息")
+<style type="text/css">
+    .datagrid-cell, .datagrid-cell-group, .datagrid-header-rownumber, .datagrid-cell-rownumber {
+        font-size: 18px;
+    }
+
+    .datagrid-header .datagrid-cell span {
+        font-size: 20px;
+    }
+    table tr td{
+        height: 30px;
+    }
+    .even{background: #c2cdda;}
+
+</style>
+<div style="padding: 20px;text-align: center;">
+<form action="$!homeModule.getTarget("/sys/list.action")" method="POST" >
+    请输入密码：
+    <input type="password" name="pwd_exec" id="pwd">
+    <input type="submit" id="btn_ok" value="确认">
+    <input type="hidden" name="method" value="$!method" />
+</form>
+<div id="synDiv"  #if(!$!pwd_exec) style="display:none" #end>
+    <br>
+    <br>
+    <br>
+    #if($!pwd_exec)<input type="hidden" name="pwd_exec" value="$!pwd_exec" />  #end
+    <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+        <thead>
+        <tr style="background-color: #a9a9a9;">
+            <th data-options="field:'Jvm',align:'right'" width="35%">Jvm</th>
+            <th data-options="field:'Info'"width="65%">Info</th>
+        </tr>
+        </thead>
+        <tr>
+            <td align="right" width="35%">Heap Memory</td>
+            <td>#foreach($usage in $heapMemory.entrySet())#if(!$usage.key.contains("Percent"))#if($velocityCount>1), #end$usage.key:$usage.value#end#end
+                <table border="0" cellpadding="0" cellspacing="0" width="60%">
+                    <tr>
+                        <td align="center" width="$!{heapMemory.usedPercent}%" style="color:white; background-color: red;">#if($!{heapMemory.usedPercent}>=20)$!{heapMemory.usedPercent}%#end</td>
+                        <td align="center" width="$!{heapMemory.freePercent}%" style="color:white; background-color: green;">#if($!{heapMemory.freePercent}>=20)$!{heapMemory.freePercent}%#end</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td align="right" width="35%">PermGen Memory</td>
+            <td>#foreach($usage in $nonHeapMemory.entrySet())#if(!$usage.key.contains("Percent"))#if($velocityCount>1), #end$usage.key:$usage.value#end#end
+                <table border="0" cellpadding="0" cellspacing="0" width="60%">
+                    <tr>
+                        <td align="center" width="$!{nonHeapMemory.usedPercent}%" style="color:white; background-color: red;">#if($!{nonHeapMemory.usedPercent}>=20)$!{nonHeapMemory.usedPercent}%#end</td>
+                        <td align="center" width="$!{nonHeapMemory.freePercent}%" style="color:white; background-color: green;">#if($!{nonHeapMemory.freePercent}>=20)$!{nonHeapMemory.freePercent}%#end</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center">内存回收情况</td>
+        </tr>
+        #foreach($item in $garbages)
+            <tr>
+                <td align="right">$item.name</td>
+                <td>回收次数：$item.usedValue 总计时：$item.totalValue</td>
+            </tr>
+        #end
+        <tr>
+            <td colspan="2" align="center">Memory Pools</td>
+        </tr>
+        <tr>
+            <td  align="right">Heap:</td>
+            <td  align="left">#foreach($heap in $memoryPools.heaps.entrySet())
+                <table border="0" cellpadding="0" cellspacing="2" width="100%">
+                    <tr>
+                        <td align="center" width="$!{heap.value}%" style="color:white; background-color: green;">#if($heap.value>50)$!{heap.key}($!{heap.value}%)#end</td>
+                        <td>#if($heap.value<=50)$!{heap.key}($!{heap.value}%)#end&nbsp;</td>
+                    </tr>
+                </table> #end</td>
+        </tr>
+        <tr>
+            <td  align="right">NonHeap:</td>
+            <td  align="left">#foreach($heap in $memoryPools.nooHeaps.entrySet())
+                <table border="0" cellpadding="0" cellspacing="2" width="100%">
+                    <tr>
+                        <td align="center" width="$!{heap.value}%" style="color:white; background-color: green;">#if($heap.value>50)$!{heap.key}($!{heap.value}%)#end</td>
+                        <td>#if($heap.value<=50)$!{heap.key}($!{heap.value}%)#end&nbsp;</td>
+                    </tr>
+                </table> #end</td>
+        </tr>
+        #foreach($item in $memoryPools.entrySet())#if($item.value.memoryPoolMXBean)
+            <tr>
+                <td align="right">$item.value.memoryPoolMXBean.type</td>
+                <td>Manager[#foreach($name in $item.value.memoryPoolMXBean.memoryManagerNames)#if($velocityCount>1), #end$name#end]
+                    <table  cellpadding="0" cellspacing="0"  width="100%" style="border-collapse: collapse;">
+                        <tr>
+                            <td width="20%" align="right">Usage:</td>
+                            <td>#foreach($usage in $item.value.usage.entrySet())#if(!$usage.key.contains("Percent"))#if($velocityCount>1), #end$usage.key:$usage.value#end#end
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="center" width="$!{item.value.usage.usedPercent}%" style="color:white; background-color: red;">#if($!{item.value.usage.usedPercent}>=20)$!{item.value.usage.usedPercent}%#end</td>
+                                        <td align="center" width="$!{item.value.usage.freePercent}%" style="color:white; background-color: green;">#if($!{item.value.usage.freePercent}>=20)$!{item.value.usage.freePercent}%#end</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="20%" align="right">PeakUsage:</td>
+                            <td>#foreach($usage in $item.value.peakUsage.entrySet())#if(!$usage.key.contains("Percent"))#if($velocityCount>1), #end$usage.key:$usage.value#end#end
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="center" width="$!{item.value.peakUsage.usedPercent}%" style="color:white; background-color: red;">#if($!{item.value.peakUsage.usedPercent}>=20)$!{item.value.peakUsage.usedPercent}%#end</td>
+                                        <td align="center" width="$!{item.value.peakUsage.freePercent}%" style="color:white; background-color: green;">#if($!{item.value.peakUsage.freePercent}>=20)$!{item.value.peakUsage.freePercent}%#end</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>#if($item.value.connectionUsage)
+                        <tr>
+                            <td width="20%" align="right">ConnectionUsage:</td>
+                            <td>#foreach($usage in $item.value.connectionUsage.entrySet())#if(!$usage.key.contains("Percent"))#if($velocityCount>1), #end$usage.key:$usage.value#end#end
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="center" width="$!{item.value.connectionUsage.usedPercent}%" style="color:white; background-color: red;">#if($!{item.value.connectionUsage.usedPercent}>=20)$!{item.value.connectionUsage.usedPercent}%#end</td>
+                                        <td align="center" width="$!{item.value.connectionUsage.freePercent}%" style="color:white; background-color: green;">#if($!{item.value.connectionUsage.freePercent}>=20)$!{item.value.connectionUsage.freePercent}%#end</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>#end
+                    </table>
+                </td>
+            </tr>
+        #end    #end
+        <tr>
+            <td colspan="2" align="center">ClassLoad Info</td>
+        </tr>
+        <tr>
+            <td align="right">class</td>
+            <td>loadedClassCount：$classLoad.loadedClassCount  unloadedClassCount：$classLoad.unloadedClassCount</td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center">Jit</td>
+        </tr>
+        <tr>
+            <td align="right">$compilation.name</td>
+            <td>编译时长：$compilationTime</td>
+        </tr>
+    </table>
+    <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+        <thead>
+        <tr style="background-color: #a9a9a9;">
+            <th data-options="field:'Threads',align:'right'" width="35%">Java Runtime</th>
+            <th data-options="field:'Environment'"width="65%">Environment</th>
+        </tr>
+        </thead>
+        <tr>
+            <td align="right" width="35%">JVM Name</td>
+            <td>$!stringEscapeUtils.escapeHtml($runtime.name)</td>
+        </tr>
+        <tr>
+            <td align="right">Current Time</td>
+            <td>$dateFormatUtils.format($now)</td>
+        </tr>
+        <tr>
+            <td align="right">Start Time</td>
+            <td>$dateFormatUtils.format($startTime)</td>
+        </tr>
+        <tr>
+            <td align="right">UpTime</td>
+            <td>$uptime</td>
+        </tr>
+        <tr>
+            <td align="right">JVM Management Version</td>
+            <td>$runtime.managementSpecVersion</td>
+        </tr>
+        <tr>
+            <td align="right">JVM Arguments</td>
+            <td>#foreach($input in $runtime.inputArguments)$!stringEscapeUtils.escapeHtml($input) #end
+            </td>
+        </tr>
+        <tr>
+            <td align="right">Class Path</td>
+            <td>$!stringEscapeUtils.escapeHtml($runtime.classPath)</td>
+        </tr>
+    </table>
+    <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+        <thead>
+        <tr style="background-color: #a9a9a9;">
+            <th data-options="field:'Threads',align:'right'" width="35%">Threads</th>
+            <th data-options="field:'Debug'"width="65%">Summary <a href="?method=threads" target="_blank">details</a></th>
+        </tr>
+        </thead>
+        <tr>
+            <td align="right" width="35%">Peak</td>
+            <td>$threads.peakThreadCount</td>
+        </tr>
+        <tr>
+            <td align="right" width="35%">Current</td>
+            <td>$threads.threadCount</td>
+        </tr>
+        <tr>
+            <td align="right" width="35%">Daemon</td>
+            <td>$threads.daemonThreadCount</td>
+        </tr>
+
+    </table>
+
+    #if($method && $method=="threads")
+        <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+            <thead>
+            <tr style="background-color: #a9a9a9;">
+                <th data-options="field:'Threads',align:'right'" width="35%">Threads</th>
+                <th data-options="field:'Debug'"width="65%">Info</th>
+            </tr>
+            </thead>
+            #foreach($thread in $threadDetails.entrySet())
+            <tr>
+                <td align="right" width="35%" valign="top">$thread.key</td>
+                <td><pre>$thread.value</pre></td>
+            </tr>#end
+        </table>
+    #elseif($method && $method=="processors")
+        <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+            <thead>
+            <tr style="background-color: #a9a9a9;">
+                <th data-options="field:'Tomcat Runtime',align:'right'" width="35%">Tomcat Processors</th>
+                <th data-options="field:'Debug'"width="65%">Info</th>
+            </tr>
+            </thead>
+           #foreach($processor in $requestProcessors.entrySet())
+            <tr>
+                <td align="right" width="35%" valign="top">$processor.key</td>
+                <td><p>#foreach($servlet in $processor.value.entrySet())#if($velocityCount>1), #end$servlet.key=$!servlet.value#end</p></td>
+            </tr>#end
+        </table>
+    #else
+
+        <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+            <thead>
+            <tr style="background-color: #a9a9a9;">
+                <th data-options="field:'Tomcat Runtime',align:'right'" width="35%">Tomcat Runtime</th>
+                <th data-options="field:'Debug'"width="65%">Info <a href="?method=processors" target="_blank">processors</a></th>
+            </tr>
+            </thead>
+            <tr>
+                <td align="right" width="35%">thread pool</td>
+                <td>
+                    #foreach($pools in $catalinaThreadPool.entrySet())
+                        <table cellpadding="0" cellspacing="0"  width="100%" style="border-collapse: collapse;">
+                            <tr>
+                                <td align="center" rowspan="2" width="10%"><b>$pools.key</b></td>
+                                <td align="left"><p>#foreach($pool in $pools.value.entrySet())#if(!$pool.key.contains("Percent"))#if($velocityCount>1), #end$pool.key=$pool.value#end#end</p></td>
+                            </tr>
+                            <tr>
+                                <td align="center"  width="10%">&nbsp;</td>
+                                <td>
+                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                        <tr>
+                                            <td align="center" width="$!{pools.value.currentThreadPercent}%" style="color:white; background-color: red;"><p>#if($!{pools.value.currentThreadPercent}>=20)$!{pools.value.currentThreadPercent}%#end</p></td>
+                                            <td align="center" width="$!{pools.value.restThreadPercent}%" style="color:white; background-color: #a9a9a9;"><p>#if($!{pools.value.restThreadPercent}>=20)$!{pools.value.restThreadPercent}%#end</p></td>
+                                            <td align="center" width="$!{pools.value.spareThreadPercent}%" style="color:white; background-color: green;"><p>#if($!{pools.value.spareThreadPercent}>=20)$!{pools.value.spareThreadPercent}%#end</p></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    #end
+                </td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Servlet Info</td>
+                <td>
+                    #foreach($servlets in $servletInfo.entrySet())
+                        <table  cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                            <tr>
+                                <td align="center" width="10%"><b>$servlets.key</b></td>
+                                <td align="left">#foreach($servlet in $servlets.value.entrySet())#if($velocityCount>1), #end$servlet.key=$!servlet.value#end</td>
+                            </tr>
+                        </table> #end
+                </td>
+            </tr>
+
+            <tr>
+                <td align="right" width="35%">StringCache Info</td>
+                <td> #foreach($stringCache in $stringCaches.entrySet())
+                    <table  cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                        <tr>
+                            <td align="center" width="10%"><b>$stringCache.key</b></td>
+                            <td align="left">#foreach($servlet in $stringCache.value.entrySet())#if($velocityCount>1), #end$servlet.key=$!servlet.value#end</td>
+                        </tr>
+                    </table> #end
+                </td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Connector Info</td>
+                <td> #foreach($connector in $connectors.entrySet())
+                    <table  cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                        <tr>
+                            <td align="center" width="10%"><b>$connector.key</b></td>
+                            <td align="left">#foreach($servlet in $connector.value.entrySet())#if($velocityCount>1), #end$servlet.key=$!servlet.value#end</td>
+                        </tr>
+                    </table> #end
+                </td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Global Request Processor Info</td>
+                <td> #foreach($globalRequestProcessor in $globalRequestProcessors.entrySet())
+                    <table  cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                        <tr>
+                            <td align="center" width="10%"><b>$globalRequestProcessor.key</b></td>
+                            <td align="left">#foreach($servlet in $globalRequestProcessor.value.entrySet())#if($velocityCount>1), #end$servlet.key=$!servlet.value#end</td>
+                        </tr>
+                    </table> #end
+                </td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Global Data Source Info</td>
+                <td> #foreach($globalDataSource in $globalDataSources.entrySet())
+                    <table  cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                        <tr>
+                            <td align="center" width="10%"><b>$globalDataSource.key</b></td>
+                            <td align="left">#foreach($servlet in $globalDataSource.value.entrySet())#if($velocityCount>1), #end$servlet.key=$!servlet.value#end</td>
+                        </tr>
+                    </table> #end
+                </td>
+            </tr>
+        </table>
+
+        <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+            <thead>
+            <tr style="background-color: #a9a9a9;">
+                <th data-options="field:'DataSource',align:'right'" width="35%">DataSource</th>
+                <th data-options="field:'Debug'"width="65%">Debug Info</th>
+            </tr>
+            </thead>
+            #foreach($dataSource in $dataSources.entrySet())
+                <tr>
+                    <td align="right" width="35%">$dataSource.key</td>
+                    <td>#if($dataSource.value) <pre>$dataSource.value</pre> #else 未初始化 #end</td>
+                </tr>
+            #end
+        </table>
+        <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+            <thead>
+            <tr style="background-color: #a9a9a9;">
+                <th data-options="field:'Partition',align:'right'" width="35%">Partition</th>
+                <th data-options="field:'Info'"width="65%">Info</th>
+            </tr>
+            </thead>
+            #foreach($partition in $partitions)
+            <tr>
+                <td align="right" width="35%">$partition.name</td>
+                <td>
+                    <table border="0" cellpadding="0" cellspacing="0" align="left" width="60%" style=" height: 25px">
+                        <tr>
+                            <td align="center" width="$!{partition.usedPercent}%" style="color:white; background-color: red;">#if($!{partition.usedPercent}>=20)$!{partition.usedPercent}%#end</td>
+                            <td align="center" width="$!{partition.freePercent}%" style="color:white;background-color: green">#if($!{partition.freePercent}>=20)$!{partition.freePercent}%#end</td>
+                        </tr>
+                    </table>
+                    Total:$!{partition.totalValue},Free:$!{partition.freeValue},used:$!{partition.usedValue}
+                </td>
+            </tr>#end
+        </table>
+
+        <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+            <thead>
+            <tr style="background-color: #a9a9a9;">
+                <th data-options="field:'Network',align:'right'" width="35%">Network</th>
+                <th data-options="field:'Info'"width="65%">Info</th>
+            </tr>
+            </thead>
+            #foreach($network in $networkInterfaces)
+                #if($network.up)
+                <tr>
+                    <td align="right" width="500" >${network.displayName}</td>
+                    <td>
+                        ${network.name}#foreach($inetAdd in ${network.interfaceAddresses})
+                        #if($inetAdd.address.address.size()==4):&nbsp;&nbsp;&nbsp;&nbsp; $inetAdd.address.hostAddress #end
+                         #end
+                    </td>
+                </tr>
+                #end
+            #end
+        </table>
+
+        <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+            <thead>
+            <tr style="background-color: #a9a9a9;">
+                <th data-options="field:'Operator',align:'right'"width="35%">Operator</th>
+                <th data-options="field:'Info'"width="65%">Info</th>
+            </tr>
+            </thead>
+            <tr>
+                <td align="right" width="35%">Name</td>
+                <td>$operator.name</td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Total Physical Memory</td>
+                <td>$totalPhysical</td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Free Physical Memory</td>
+                <td>$freePhysical</td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Total Swap Memory</td>
+                <td>$totalSwap</td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Free Swap Memory</td>
+                <td>$freeSwap</td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Committed Virtual Memory</td>
+                <td>$commitVirtual</td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Arch</td>
+                <td>$operator.arch</td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">CPUs</td>
+                <td>$operator.availableProcessors</td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Load</td>
+                <td>#if($operator.systemLoadAverage < 0)Not Available#else${operator.systemLoadAverage}#end</td>
+            </tr>
+            <tr>
+                <td align="right" width="35%">Version</td>
+                <td>$operator.version</td>
+            </tr>
+        </table>
+        <table class="table" style="border-color: #e2dfd1;width:100%;height:auto;border:1px solid #ccc;">
+            <thead>
+            <tr style="background-color: #a9a9a9;">
+                <th data-options="field:'s1',align:'right'"width="35%">System</th>
+                <th data-options="field:'p1'"width="65%">Properties</th>
+            </tr>
+            </thead>
+            #foreach($entry in $runtime.systemProperties.entrySet())
+            <tr>
+                <td align="right" width="35%">$!stringEscapeUtils.escapeHtml($entry.key)</td>
+                <td>#if("line.separator" == $entry.key)$stringEscapeUtils.escapeJava($entry.value)#else$!stringEscapeUtils.escapeHtml($entry.value)#end</td>
+            </tr>
+            #end
+        </table>
+    </div>
+    #end
+</div>
+<script type="text/javascript">
+    $(function(){
+       $('.table').datagrid();
+       $('tr:even').addClass("even");
+    });
+</script>

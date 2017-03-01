@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <script type="text/javascript" src="$!homeModule.getTarget("/common/js/highcharts/highcharts.js")"></script>
+    <script>
+        var  esindex =  '$!esSerach.index';
+        var estype =  '$!esSerach.type';
+        var  domain= '$!hp.domain';
+        var className =  '$!hp.className';
+        var methodName =  '$!hp.methodName';
+        var created_begain = '$!hp.created_begain';
+        var created_end = '$!hp.created_end';
+        var treeId = '$!hp.treeId';
+        var logType ='$!hp.logType';
+        var charts1;
+
+        $(function () {
+            reflashchar();
+            $("#showmoreinfo").html(className+"."+methodName+"()");
+        });
+
+
+        function reflashchar(){
+            $.post(' $!homeModule.getTarget('/esimg/getEsDate.action')',
+                    {domain:domain,
+                        esindex:esindex,
+                        estype:estype,
+                        logType:logType,
+                        className:className,
+                        methodName:methodName,
+                        created_begain:created_begain,
+                        created_end:created_end,
+                        treeId:treeId
+                    },
+                    function (result) {
+                        if (result) {
+                            loadHightCharts(result)
+                        }
+                        else {
+                            $.messager.alert("提示信息", "加载失败");
+                        }
+                    },
+                    'json');
+        }
+
+        function getRandomColor (){
+
+            return  '#' +
+                    (function(color){
+                        return (color +=  '0123456789abcdef'[Math.floor(Math.random()*16)])
+                        && (color.length == 6) ?  color : arguments.callee(color);
+                    })('');
+        }
+
+    </script>
+</head>
+<body>
+
+<div>
+    <div id="hichartsContainer" style="width:100%; height: 550px; margin: 0 auto"></div>
+</div>
+
+<script language="JavaScript">
+    function loadHightCharts(data) {
+        var title = {
+            text: '调用方法耗时'
+        };
+        var subtitle = {
+            text: 'Domain:$!hp.domain '
+        };
+
+        var xAxis = {
+            type: 'datetime',
+            labels: {
+                formatter: function () {
+                    return getLocalTimes(this.value);
+                }
+            }
+        }
+
+        var yAxis = {
+            title: {
+                text: 'SpendTime (MS)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        };
+
+        var chart = {
+            type: 'line'
+        }
+
+
+        var series =  [];
+
+        for(var i=0;i<data.length;i++){
+            var onedata = data[i];
+            var oneseries = {};
+            oneseries.name=data[i][0].className+'.'+data[i][0].methodName+'()';
+            oneseries.name=oneseries.name.substring(oneseries.name.length-40,oneseries.name.length);
+            var oneseriesdata =[];
+            for(var j=0;j<onedata.length;j++){
+                var esOneMethoddate = {
+                    x:onedata[j].created,
+                    y:parseInt(onedata[j].spendTime==null?0:onedata[j].spendTime),
+                    msg:'IP:['+onedata[j].localHostIp+']  CreateTime:['+getLocalTimes(onedata[j].created+1000)+']  SpenTime:['+onedata[j].spendTime==null?0:onedata[j].spendTime+']ms'
+                }
+                oneseriesdata.push(esOneMethoddate);
+            }
+            oneseries.data=oneseriesdata;
+            series.push(oneseries)
+        }
+
+        var tooltip = {
+            shared: false, //是否共享提示，也就是X一样的所有点都显示出来
+            useHTML: true, //是否使用HTML编辑提示信息
+            headerFormat: '<table>',
+            pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                        '<td style="text-align: right;color: {series.color}">{point.msg}</td></tr>',
+            footerFormat: '</table>',
+            crosshairs: [{
+                width: 1,
+                color: 'green'
+            }]
+        };
+
+        var json = {};
+
+        json.chart=chart;
+        json.title = title;
+        json.subtitle = subtitle;
+        json.xAxis = xAxis;
+        json.yAxis = yAxis;
+        json.series = series
+        json.tooltip=tooltip;
+
+        $('#hichartsContainer').highcharts(json);
+    }
+</script>
+
+
+
+
+</body>
+</html>

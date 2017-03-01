@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+
+    <package name="menu" namespace="/menu" extends="unity-log-default">
+        <action name="getMenuTree" method="getMenuTree" class="com.el.unity.log.web.menu.MenuAction">
+        </action>
+        <action name="*" method="{1}" class="com.el.unity.log.web.menu.MenuAction">
+            <result name="list">/WEB-INF/vm/menu/list.vm</result>
+            <result name="LoadMen">/WEB-INF/vm/index.vm</result>
+            <result>/WEB-INF/vm/menu/{1}.vm</result>
+        </action>
+    </package>
+
+
+</struts>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+    <constant name="struts.enable.DynamicMethodInvocation" value="false"/>
+    <constant name="struts.devMode" value="${unity-log.struts.devMode}"/>
+    <constant name="struts.objectFactory" value="spring"/>
+    <constant name="struts.multipart.maxSize" value="524288"/>
+    <!--整体最大8M-->
+    <constant name="struts.objectFactory.spring.autoWire " value="name"/>
+    <constant name="struts.i18n.encoding" value="UTF-8"/>
+    <constant name="struts.custom.i18n.resources" value="message/message"/>
+
+    <package name="unity-log-default" extends="struts-default">
+        <result-types>
+            <result-type name="velocity" class="com.el.common.velocity.VelocityLayoutResult" default="true">
+                <param name="toolsBeanId">velocityTools</param>
+                <param name="urlBeanId">velocityUrl</param>
+            </result-type>
+        </result-types>
+        <interceptors>
+            <interceptor-stack name="strutsDefaultStack">
+                <interceptor-ref name="exception"/>
+                <interceptor-ref name="alias"/>
+                <interceptor-ref name="servletConfig"/>
+                <interceptor-ref name="i18n"/>
+                <interceptor-ref name="prepare"/>
+                <interceptor-ref name="chain"/>
+                <interceptor-ref name="debugging"/>
+                <interceptor-ref name="scopedModelDriven"/>
+                <interceptor-ref name="modelDriven"/>
+                <interceptor-ref name="fileUpload">
+                    <param name="maximumSize">4194304</param>
+                    <!--单个文件最大4M -->
+                    <param name="allowedTypes">image/x-png,image/png,image/gif,image/jpeg,image/jpg,image/pjpeg,text/plain,application/octet-stream</param>
+                    <param name="allowedExtensions">jpg,jpeg,png,gif,txt,vm</param>
+                </interceptor-ref>
+                <interceptor-ref name="checkbox"/>
+                <interceptor-ref name="multiselect"/>
+                <interceptor-ref name="staticParams"/>
+                <interceptor-ref name="actionMappingParams"/>
+                <interceptor-ref name="params">
+                    <param name="excludeParams">dojo\..*,^struts\..*,.*\\u0023.*</param>
+                </interceptor-ref>
+                <interceptor-ref name="conversionError"/>
+                <interceptor-ref name="validation">
+                    <param name="excludeMethods">input,back,cancel,browse</param>
+                </interceptor-ref>
+                <interceptor-ref name="workflow">
+                    <param name="excludeMethods">input,back,cancel,browse</param>
+                </interceptor-ref>
+            </interceptor-stack>
+            <interceptor-stack name="taskInterceptor">
+                <interceptor-ref name="strutsDefaultStack"/>
+            </interceptor-stack>
+        </interceptors>
+        <default-interceptor-ref name="taskInterceptor"/>
+        <global-results>
+            <result name="exception">/WEB-INF/vm/error.vm</result>
+            <result name="error">/WEB-INF/vm/error.vm</result>
+            <result name="input">/WEB-INF/vm/convertError.vm</result>
+        </global-results>
+        <global-exception-mappings>
+            <exception-mapping exception="java.lang.Exception" result="exception"/>
+        </global-exception-mappings>
+    </package>
+
+    <package name="json-default" extends="unity-log-default">
+        <result-types>
+            <result-type name="json" class="org.apache.struts2.json.JSONResult"/>
+        </result-types>
+        <interceptors>
+            <interceptor name="json" class="org.apache.struts2.json.JSONInterceptor"/>
+        </interceptors>
+    </package>
+    <package name="index" namespace="/" extends="unity-log-default">
+        <action name="index" class="com.el.unity.log.web.IndexAction">
+            <result>/WEB-INF/vm/index.vm</result>
+        </action>
+        <action name="logout" method="logout" class="com.el.unity.log.web.IndexAction">
+            <result type="redirectAction">
+                <param name="namespace">/</param>
+                <param name="actionName">index.action</param>
+            </result>
+        </action>
+    </package>
+    <package name="sys" namespace="/sys" extends="unity-log-default">
+        <action name="*" method="{1}" class="com.el.common.sys.SystemInfoAction">
+            <result>/WEB-INF/vm/sysinfo/list.vm</result>
+        </action>
+    </package>
+    <package name="debug" namespace="/debug" extends="unity-log-default">
+        <action name="*" method="{1}" class="com.el.common.web.action.DebugAction"/>
+    </package>
+    <include file="struts-es.xml"/>
+    <include file="struts-menu.xml"/>
+    <include file="struts-ip.xml"/>
+    <include file="struts-domain.xml"/>
+    <include file="struts-type.xml"/>
+
+</struts>

@@ -1,0 +1,291 @@
+#set($title = "菜单管理页面")
+<div style="text-align: center;">
+
+
+        <table class="table" style="width:98%;height:auto;">
+            <tr >
+                <td style="text-align:left">
+                    菜单名称
+                    <input class="easyui-textbox" style="width:20%" type="text" id="searchWord" name="searchWord" ></input>
+                    &nbsp;
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-search"  onclick="SearchContext()" style="width:100px;">搜索</a>
+                </td>
+            </tr>
+        </table >
+
+
+        <table class="easyui-datagrid" id="resultContext" title="查询结果" style="width:98%;height:60%"
+               data-options="singleSelect:true,method:'post',collapsible:true,url:'$!homeModule.getTarget('/menu/getAllMenu.action')'" toolbar="#menuedittoolbar" pagination="true">
+            <thead>
+            <tr>
+                <th data-options="field:'menId',align:'left',hidden:true" >菜单ID</th>
+                <th data-options="field:'name',align:'left'" style="width:10%;">菜单名称</th>
+                <th data-options="field:'menUrl',align:'left'" style="width:40%;">菜单URL</th>
+                <th data-options="field:'parentMenId',align:'left'"  formatter="formatFatherMenu" style="width:10%;">父菜单</th>
+                <th data-options="field:'domainName',align:'left'" style="width:20%;">域名</th>
+                <th data-options="field:'created',align:'left'" formatter="getLocalTime" style="width:20%;">创建时间</th>
+            </tr>
+            </thead>
+        </table>
+
+        <div id="menuedittoolbar">
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" onclick="OpenDialog( 'dlgForNewMenu','添加菜单','FromForNew','','')" plain="true">添加</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" onclick="editMenu()" plain="true">修改</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" onclick="DeleteMenu()" plain="true">删除</a>
+        </div>
+
+        <!--  ******************************添加菜单弹出框--start**************************************  -->
+
+            <div id="dlgForNewMenu" class="easyui-dialog" style="width: 460px; height: 520px; padding: 10px 20px;"
+                 closed="true" buttons="#dlg-buttons">
+                <form id="FromForNew" action="$!homeModule.getTarget("/menu/addMenu.action")" method="post">
+
+                    <table>
+                        <tr>
+                            <td style="text-align: right"></td>
+                            <td style="text-align: left">
+                                <input type="text" name="menuForNew.created" style="height:0px;border-style:none" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right"></td>
+                            <td style="text-align: left">
+                                <input type="text" id="menuForNewmenId" name="menuForNew.menId" style="height:0px;border-style:none"   />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right">菜单名称</td>
+                            <td style="text-align: left">
+                                <input name="menuForNew.name" class="easyui-textbox" style="width:250px;" data-options="required:true,missingMessage:'必须填写'" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td  style="text-align: right">菜单URL</td>
+                            <td style="text-align: left">
+                                <input name="menuForNew.menUrl" class="easyui-textbox" style="width:250px;height:50px;"  data-options="required:true,missingMessage:'必须填写',multiline:true"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td  style="text-align: right">EsAppenderURL</td>
+                            <td style="text-align: left">
+                                <input name="menuForNew.esAppenderUrl" class="easyui-textbox" style="width:250px;height:50px;"  data-options="multiline:true"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td  style="text-align: right">EsFileURL</td>
+                            <td style="text-align: left">
+                                <input name="menuForNew.esFileUrl" class="easyui-textbox" style="width:250px;height:50px;"  data-options="multiline:true" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td  style="text-align: right">EsPerformsURL</td>
+                            <td style="text-align: left">
+                                <input name="menuForNew.imgTimeUrl" class="easyui-textbox" style="width:250px;height:50px;"  data-options="multiline:true" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right">父菜单</td>
+                            <td style="text-align: left">
+                                <select id="CBForParent"  name="menuForNew.parentMenId" style="width:250px;" style="width: 155px;" class="easyui-combobox" ></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right"> 域名</td>
+                            <td style="text-align: left">
+                                <!--<input name="menuForNew.domainName" class="easyui-textbox"  data-options="required:true,missingMessage:'必须填写'"/>-->
+                                <select id="CBForDomain"  name="menuForNew.domainName" style="width: 250px;"  class="easyui-combobox" data-options="required:true,missingMessage:'必须选择'" ></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right"> 备注</td>
+                            <td style="text-align: left">
+                                <input name="menuForNew.remark" style="width:250px;" class="easyui-textbox" />
+                            </td>
+                        </tr>
+                    </table>
+
+
+
+                </form>
+            </div>
+            <div id="dlg-buttons">
+                <a href="javascript:void(0)" class="easyui-linkbutton" style="width:80px;" onclick="SaveMenu()" iconcls="icon-save">保存</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" style="width:80px;" onclick="javascript:$('#dlgForNewMenu').dialog('close')" iconcls="icon-cancel">取消</a>
+            </div>
+
+        <div class="easyui-dialog" style="width: 400px; height: 320px; padding: 10px 20px;"
+            closed="true">
+        </div>
+
+
+    <script type="text/javascript">
+        var oneLevelJsons = $!oneLevelJsons;
+        $(function(){
+
+            /**
+             * 将一级菜单加载进下拉框
+             */
+            $('#CBForParent').combobox({
+                valueField:'menId',
+                textField:'name',
+                url:'$!homeModule.getTarget('/menu/getFullAllMenu.action')',
+
+            });
+
+
+
+            /**
+             * 将域名加载进下拉框
+             */
+            $('#CBForDomain').combobox({
+                valueField:'name',
+                textField:'name',
+                url:'$!homeModule.getTarget('/domain/getAllDomain.action')',
+
+            });
+        });
+
+        /**
+         * easyui将父菜单id转换为名称
+         */
+        function formatFatherMenu(val,row,index){
+            if(val==null){
+                return "";
+            }else{
+                return oneLevelJsons[val];
+            }
+        }
+
+
+    </script>
+
+
+        <!--  ******************************添加菜单弹出框--end**************************************  -->
+
+
+
+
+
+    <script type="text/javascript">
+
+        function SearchContext(){
+            $('#resultContext').datagrid('load',{
+                searchWord:$('#searchWord').val()
+            });
+        }
+
+        /**
+         * 编辑菜单
+         */
+        function editMenu(){
+            var row = $("#resultContext").datagrid("getSelected");
+            if(row){
+                OpenDialog( 'dlgForNewMenu','修改菜单','FromForNew','edit','resultContext');
+            }else{
+                $.messager.alert("提示信息", "请您先选中您要编辑的菜单。");
+            }
+
+        }
+
+        /**
+         * easyui-打开某个对话框
+         * @param dialogID 对话框id
+         * @param dialogTitle 要显示的标题
+         * @param formID 要加载的from（编辑操作时补充数据）
+         *  @param methodType 操作类型：new：新增 ， edit：编辑
+         * @param datagridId 数据源id
+         */
+        function OpenDialog( dialogID ,dialogTitle,formID,methodType,datagridId){
+            $("#"+dialogID+"").dialog("open").dialog('setTitle', dialogTitle);
+            $("#"+formID+"").form("clear");
+            if(methodType=="edit"){
+                var row = $("#"+datagridId+"").datagrid("getSelected");
+                del(row,"menId","menuForNew.menId");
+                del(row,"name","menuForNew.name");
+                del(row,"menUrl","menuForNew.menUrl");
+                del(row,"esAppenderUrl","menuForNew.esAppenderUrl");
+                del(row,"esFileUrl","menuForNew.esFileUrl");
+                del(row,"imgTimeUrl","menuForNew.imgTimeUrl");
+                //del(row,"parentMenId","menuForNew.parentMenId");
+                del(row,"domainName","menuForNew.domainName");
+                del(row,"created","menuForNew.created");
+                row["menuForNew.created"]=getLocalTime(row["menuForNew.created"],'','');
+                if (row) {
+
+                    $("#"+formID+"").form("load", row);
+                    var data = $('#CBForParent').combobox('getData');
+                    $('#CBForParent').combobox('select', row["parentMenId"]);
+
+                }
+            }
+        }
+
+
+        /**
+         *保存数据
+         * @constructor
+         */
+        function  SaveMenu(){
+            var Formurl ="";
+            var menId = $('#menuForNewmenId').val();
+            if(menId==""){
+                Formurl= '$!homeModule.getTarget('/menu/addMenu.action')';
+            }else{
+                Formurl='$!homeModule.getTarget('/menu/editMenu.action')';
+            }
+            $("#FromForNew").form("submit", {
+                url:Formurl,
+                onsubmit: function () {
+                    return $(this).form("validate");
+                },
+                success: function (result) {
+                    if (result == "1") {
+                        $.messager.alert("提示信息", "操作成功");
+                        $("#dlgForNewMenu").dialog("close");
+                        $("#resultContext").datagrid("load");
+                        //$("#CBForParent").combogrid('grid').datagrid('load')
+                        $('#CBForParent').combobox('reload');
+                        window.parent.RefreshAllMemu();
+                    }
+                    else {
+                        $.messager.alert("提示信息", "操作失败");
+                    }
+                }
+            });
+
+
+        }
+
+        /**
+         *删除数据
+         * @constructor
+         */
+        function DeleteMenu() {
+            var row = $('#resultContext').datagrid('getSelected');
+            if (row) {
+                $.messager.confirm('危险', '您确定要删除本菜单吗？', function (r) {
+                    if (r) {
+                        $.post(' $!homeModule.getTarget('/menu/deleteMenu.action')', { menId: row.menId }, function (result) {
+                            if (result == "1") {
+                                $.messager.alert("提示信息", "操作成功");
+                                $("#resultContext").datagrid("reload");
+                                $('#CBForParent').combobox('reload');
+                                window.parent.RefreshAllMemu();
+                            }
+                            else {
+                                $.messager.alert("提示信息", "操作失败");
+                            }
+                        }, 'json');
+                    }
+                });
+            }else{
+                $.messager.alert("提示信息", " 请您先选中您要删除的菜单。");
+            }
+
+        }
+
+
+
+
+    </script>
+</div>

@@ -1,0 +1,351 @@
+#set($title = "ES管理页面")
+<div style="text-align: center;">
+
+
+
+
+    <form id="SerachByFile" action="/es/serachES.action" >
+        <input  type="hidden"  name="esSerach.index"  value="$!esSerach.index"></input>
+        <input  type="hidden"  name="esSerach.type"  value="$!esSerach.type"></input>
+        <input  type="hidden"   name="esSerach.orderFile"  value="created"></input>
+
+
+        <input  type="hidden"   name="hp.domain"  value="$!hp.domain"></input>
+        <input  type="hidden"  name="hp.SearchType" id="text-SearchType"  value="or"></input>
+        <input  type="hidden"  name="hp.HightLight" id="text-havaHightLight"  value="no"></input>
+        <input type="hidden" name="rows" id="rowshidden">
+        <input type="hidden" name="page" id="pagehidden">
+
+        <table class="table" style="width:98%;height:auto;">
+            <tr >
+                <td style="text-align:left">
+                    <input class="easyui-textbox" style="width:45%" type="text" id="hpcontext" name="hp.context" ></input>
+                    <input type="checkbox" id="SearchType-And"   onchange="SearchTypeChange()">精确匹配
+                    <input type="checkbox" id="havaHightLight"   onchange="HightLightChange()">高亮
+                    &nbsp;&nbsp;
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-search"  onclick=" $('#pagehidden').val(1);$('#SerachByFile').submit()"style="width:100px;">搜索</a>
+                </td>
+                <td style="width:10%;">
+                </td>
+            </tr>
+        </table >
+        <table class="table" style="width:98%;height:auto;text-align: left">
+            <tr>
+                <td>
+                    IP
+                    <input     name="hp.localHostIp" id="hp-ocalHostIp" class="easyui-textbox" style="width: 100px"></input>
+                    类型
+                    <input     name="hp.contextType" id="hp-contextType" class="easyui-textbox" style="width: 100px></input>
+                    日志级别
+                    <input class="easyui-textbox" style="width: 100px"  id="hplevel" name="hp.level" >
+
+                    生成日期
+                    <input class="easyui-datetimebox" style="width: 150px" id="hpcreated-begain"  name="hp.created_begain">
+                    -
+                    <input class="easyui-datetimebox" style="width: 150px" id="hpcreated-end"  name="hp.created_end">
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-reload"  onclick="JustToday()"style="width:100px;">默认时间</a>
+
+                </td>
+
+            </tr>
+        </table>
+        <div style="height:15px;"></div>
+        <table class="easyui-datagrid"  id="resultContext" title="搜索结果" style="width:98%;height:400px;"
+               data-options="singleSelect:true,collapsible:true,nowrap:false,onDblClickRow:showMore" pagination="true">
+            <thead>
+            <tr>
+                <th data-options="field:'localHostIp',align:'left',styler:noBorderCellStyler" >Ip</th>
+                <th data-options="field:'context',align:'left',styler:noBorderCellStyler"  >日志内容</th>
+
+                <th data-options="field:'level',align:'left',hidden:true" >级别</th>
+                <th data-options="field:'localHostName',align:'left',hidden:true" >机器名称</th>
+                <th data-options="field:'domain',align:'left',hidden:true">域名</th>
+                <th data-options="field:'contextType',align:'left',hidden:true" formatter="getLowercaseletters" >日志类型</th>
+                <th data-options="field:'created',align:'left',hidden:true" formatter="getLocalTime" >生成日期</th>
+                <th data-options="field:'remark',align:'left',hidden:true">备注</th>
+            </tr>
+            </thead>
+        </table>
+
+    </form>
+
+
+
+
+
+    <div id="resultContexthtml"></div>
+
+
+    <!--查看详细信息---------------------------------------start------------------------------------------------------->
+    <div id="dlgForShowMore" class="easyui-dialog" style="width: 350px; height: 130px; padding: 10px 20px;"
+         closed="true" buttons="#dlg-buttons">
+        <form id="FromForShowMore"  >
+
+            <table class="table" style="width:98%;height:auto;">
+                <tr >
+                    <td style="text-align:left">
+
+                        前后相距
+                        <input class="easyui-textbox" style="width: 50px" data-options="value:'1'" id="elminis"  >
+                        秒
+                        &nbsp;&nbsp;
+                        <a href="#" class="easyui-linkbutton" iconCls="icon-search" id="btn_serchaMoreInfo"  onclick="serchShowMore() "style="width:100px;">查询</a>
+                        <img id="img_Loading" src="$!homeModule.getTarget("/common/images/loading/l3.gif")"></img>
+                    </td>
+                </tr>
+
+            </table>
+        </form>
+    </div>
+    <div id="dlg-buttons">
+        <a href="javascript:void(0)" class="easyui-linkbutton" style="width:80px;" onclick="javascript:$('#dlgForShowMore').dialog('close')" iconcls="icon-cancel">关闭</a>
+    </div>
+
+    <!--查看详细信息---------------------------------------end------------------------------------------------------->
+
+    <div class="easyui-dialog" style="width: 400px; height: 320px; padding: 10px 20px;"
+         closed="true">
+    </div>
+
+
+    <div id='Loading' style="position: absolute; z-index: 1000; top: 0px; left: 0px;
+    width: 100%; height: 100%; background: white; text-align: center;">
+        <h1 style="top: 48%; position: relative;">
+            数据正在加载中……
+        </h1>
+    </div>
+
+    <script type="text/javascript">
+
+        function noBorderCellStyler(){
+            return 'border:0;';
+        }
+
+        function closes() {
+            $("#Loading").fadeOut("normal", function () {
+                $(this).remove();
+            });
+        }
+
+        var pc;
+        $.parser.onComplete = function () {
+            if (pc) clearTimeout(pc);
+            pc = setTimeout(closes, 1000);
+        }
+
+
+        $(function(){
+
+            JustToday();
+            #if(!($!msg))
+                $("<div class=\"datagrid-mask\"></div>").css({display:"block",width:"100%",height:$(window).height()}).appendTo("body");
+                $("<div class=\"datagrid-mask-msg\"></div>").html("正在处理，请稍候。。。").appendTo("body").css({display:"block",left:($(document.body).outerWidth(true) - 190) / 2,top:($(window).height() - 45) / 2});
+
+                $('#resultContext').datagrid("getPager").pagination("loading");
+                $('#pagehidden').val(1);$('#SerachByFile').submit();
+
+            #end
+
+        });
+
+
+        #if($!msg.trim().isEmpty()==false)
+            var searchMsgJson =$!msg;
+            $(function () {
+                var easyuijson ={};
+                var searchMsg="";
+                var hits = searchMsgJson.hits.hits;
+                //组合符合easyui格式的json串
+                for(var i=0;i<hits.length;i++){
+                    #if($!hp.HightLight)
+                        var HightLight='$!hp.HightLight';
+                        if(HightLight=='yes'){
+                            //抽离要高亮显示的字段
+                            var highlights=hits[i].highlight.context;
+                            var highlightSTR='';
+                            for(var j=0;j<highlights.length;j++){
+                                highlightSTR=highlightSTR+highlights[j];
+                            }
+                            hits[i]._source["@message"].context=highlightSTR;
+                        }
+
+                    #end
+                    hits[i] = hits[i]._source["@message"];
+                }
+                easyuijson.rows=hits;
+
+                //datagrid手动载入数据，并进行分页处理
+                $('#resultContext').datagrid('loadData',easyuijson);
+                var p = $('#resultContext').datagrid('getPager');
+                p.pagination({
+                    total:searchMsgJson.hits.total,
+                    pageSize:$!rows,
+                    pageList: [30,50,80,100,150],
+                    pageNumber:$!page,
+                    onSelectPage:function(pageNumber, pageSize){//当触发改动页码时重新请求数据
+                        $("#rowshidden").val(pageSize);
+                        $("#pagehidden").val(pageNumber);
+                        $('#SerachByFile').submit();
+                    }
+                });
+
+
+                choiceLastVlueInSecondSubmit("hpcontext","text","$!hp.context");
+                choiceLastVlueInSecondSubmit("hplevel","text","$!hp.level");
+                choiceLastVlueInSecondSubmit("hpcreated-begain","text","$!hp.created_begain");
+                choiceLastVlueInSecondSubmit("hp-ocalHostIp","text","$!hp.localHostIp");
+                choiceLastVlueInSecondSubmit("hp-contextType","text","$!hp.contextType");
+                choiceLastVlueInSecondSubmit("hpcreated-end","text","$!hp.created_end");
+                $("#text-SearchType").val("$!hp.SearchType");
+                if($("#text-SearchType").val()=="and"){
+                    $("#SearchType-And").attr("checked","checked");
+                }else{
+                    $("#SearchType-And").removeAttr("checked");
+                }
+
+
+                $("#text-havaHightLight").val("$!hp.HightLight");
+                if($("#text-havaHightLight").val()=="yes"){
+                    $("#havaHightLight").attr("checked","checked");
+                }else{
+                    $("#havaHightLight").removeAttr("checked");
+                }
+
+
+            });
+        #end
+
+        function choiceLastVlueInSecondSubmit(objectid,objecttype,lastValue){
+            if(objecttype=="text"){
+                $("#"+objectid).textbox('setValue',lastValue)
+            }else if (objecttype=="select"){
+                $("#"+objectid).combobox('select', lastValue);
+            }
+        }
+
+
+
+        //确定是否精确搜索（所有词条都出现才作为结果返回）
+        function SearchTypeChange(){
+
+            if($('#SearchType-And').is(':checked')) {
+                $("#text-SearchType").val("and");
+            }else{
+                $("#text-SearchType").val("or");
+            }
+
+        }
+
+        //确定是否高亮显示字符
+        function HightLightChange(){
+            if($('#havaHightLight').is(':checked')) {
+                $("#text-havaHightLight").val("yes");
+            }else{
+                $("#text-havaHightLight").val("no");
+            }
+        }
+
+        //快速选择昨天-今天
+        function YesterdayToToday(){
+            //设置时间
+            var today = new Date();
+            var   yesterday_milliseconds=today.getTime()-1*24*60*60*1000;
+            var   yesterday=new   Date();
+            yesterday.setTime(yesterday_milliseconds);
+
+            $("#hpcreated-begain").datebox("setValue",formatter(yesterday));
+            $("#hpcreated-end").datebox("setValue",formatter(today));
+        }
+
+        //快速选择今天
+        function JustToday(){
+            //设置时间
+            var timeEnd = new Date();
+            var timeBegin = new Date();
+            var beginHours= timeEnd.getHours()-1;
+            timeBegin.setHours(beginHours);
+
+            $("#hpcreated-begain").datetimebox("setValue",formatter(timeBegin));
+            $("#hpcreated-end").datetimebox("setValue",formatter(timeEnd));
+        }
+
+        function showMore(){
+
+            var row = $("#resultContext").datagrid("getSelected");
+            var showMoreUrl ="";
+            showMoreUrl ="$!homeModule.getTarget("/es/showmore.action")";
+            showMoreUrl = showMoreUrl+"?esindex="+"$!esSerach.index"+"&estype="+"$!esSerach.type"+"&created_begain_more_info="+row.created+"&localHostIp="+row.localHostIp+"&domain="+row.domain;
+            window.open(showMoreUrl);
+
+        }
+
+
+        function showMsgMoreInfo(row){
+
+            load();
+            var minis = $('#elminis').textbox('getValue');
+
+
+
+        }
+
+        function serchShowMore(){
+
+            var row = $("#resultContext").datagrid("getSelected");
+            if(row){
+                showMsgMoreInfo(row);
+            }else{
+                $.messager.alert("提示信息", "请您先选中某条记录。");
+            }
+        }
+
+        //弹出加载层
+        function load() {
+
+
+            $('#btn_serchaMoreInfo').linkbutton('disable');
+            $('#btn_serchaMoreInfo').width("0px");
+            $('#btn_serchaMoreInfo').height("0px");
+
+            $('#btn_printMoreInfo').width("0px");
+            $('#btn_printMoreInfo').height("0px");
+
+            $('#img_Loading').show();
+        }
+
+        //取消加载层
+        function disLoad() {
+            $('#btn_serchaMoreInfo').linkbutton('enable');
+            $('#btn_serchaMoreInfo').width("100px");
+            $('#btn_serchaMoreInfo').height("25px");
+
+            $('#btn_printMoreInfo').width("100px");
+            $('#btn_printMoreInfo').height("25px");
+
+            $('#img_Loading').hide();
+        }
+
+        function myPrint(obj){
+            var newWindow=window.open("打印窗口","_blank");//打印窗口要换成页面的url
+            newWindow.document.write(obj);
+            newWindow.document.close();
+            //newWindow.print();
+        }
+
+
+        function printShowMore(printJson){
+
+            var printStr = "<table style='width:100%'>";
+            for(var i=0;i<printJson.length;i++){
+                printStr = printStr+"<tr><td>"+printJson[i].context+"</td></tr>"
+            }
+            printStr =printStr + "</table>";
+            myPrint(printStr);
+        }
+
+
+    </script>
+
+
+
+

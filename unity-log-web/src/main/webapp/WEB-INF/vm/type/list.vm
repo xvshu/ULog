@@ -1,0 +1,274 @@
+#set($title = "ES管理页面")
+<div style="text-align: center;">
+
+        <table class="table" style="width:98%;height:auto;">
+            <tr >
+                <td style="text-align:left">
+                    类型名称
+                    <input class="easyui-textbox" style="width:20%" type="text" id="searchWord" name="searchWord" ></input>
+                    &nbsp;
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-search"  onclick="SearchContext()" style="width:100px;">搜索</a>
+
+                    
+
+                </td>
+            </tr>
+        </table >
+
+        <table class="easyui-datagrid" id="resultContext" title="查询结果" style="width:98%;height:60%"
+               data-options="singleSelect:true,method:'post',collapsible:true,url:'$!homeModule.getTarget('/type/getPageType.action')'" toolbar="#menuedittoolbar" pagination="true">
+            <thead>
+            <tr>
+                <th data-options="field:'id',align:'left',hidden:true" >ID</th>
+                <th data-options="field:'typeName',align:'left'" style="width:10%;">类型名称</th>
+                <th data-options="field:'domainName',align:'left'" style="width:40%;">域名</th>
+                <th data-options="field:'created',align:'left'" formatter="getLocalTime"  style="width:10%;">创建日期</th>
+            </tr>
+            </thead>
+        </table>
+
+        <div id="menuedittoolbar">
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" onclick="OpenDialog( 'dlgForNewMenu','添加菜单','FromForNew','','')" plain="true">添加</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-add" onclick="SaveEntityList()" plain="true">批量添加</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-edit" onclick="editMenu()" plain="true">修改</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" onclick="DeleteMenu()" plain="true">删除</a>
+        </div>
+
+        <!--  ******************************添加菜单弹出框--start**************************************  -->
+
+            <div id="dlgForNewMenu" class="easyui-dialog" style="width: 400px; height: 280px; padding: 10px 20px;"
+                 closed="true" buttons="#dlg-buttons">
+                <form id="FromForNew"  method="post">
+
+                    <table>
+                        <tr>
+                            <td style="text-align: right"></td>
+                            <td style="text-align: left">
+                                <input type="text" name="unityLogTypeForNew.created" style="height:0px;border-style:none" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right"></td>
+                            <td style="text-align: left">
+                                <input type="text" id="ForNewId" name="unityLogTypeForNew.id" style="height:0px;border-style:none"   />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right">类型名称</td>
+                            <td style="text-align: left">
+                                <input name="unityLogTypeForNew.typeName" class="easyui-textbox" data-options="required:true,missingMessage:'必须填写'" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right">域名</td>
+                            <td style="text-align: left">
+                                <!--<input name="unityLogTypeForNew.domainName" class="easyui-textbox"  data-options="required:true,missingMessage:'必须填写'"/>-->
+                                <select id="CBForDomain"  name="unityLogTypeForNew.domainName" style="width: 155px;" class="easyui-combobox" data-options="required:true,missingMessage:'必须选择'"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right"> 备注</td>
+                            <td style="text-align: left">
+                                <input name="unityLogTypeForNew.remark" class="easyui-textbox" />
+                            </td>
+                        </tr>
+                    </table>
+
+
+
+                </form>
+            </div>
+            <div id="dlg-buttons">
+                <a href="javascript:void(0)" class="easyui-linkbutton" style="width:80px;" onclick="SaveMenu()" iconcls="icon-save">保存</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" style="width:80px;" onclick="javascript:$('#dlgForNewMenu').dialog('close')" iconcls="icon-cancel">取消</a>
+            </div>
+
+        <!--  ******************************添加菜单弹出框--end**************************************  -->
+    <!--  ******************************批量添加弹出框--start**************************************  -->
+
+    <div id="dlgForNewList" class="easyui-dialog" style="width: 400px; height: 320px; padding: 10px 20px;"
+         closed="true" buttons="#dlg-list-buttons">
+        <form id="FromForNewList"  method="post">
+            <table>
+                <tr>
+                    <td style="text-align: left">
+                        请输入符合json格式的字符串，例如：</br>
+                        [{"domainName":"el.buy.com","typeName":"Text"}</br>
+                        ,{"domainName":"el.pay.com","typeName":"Int"}]
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: left">
+                        <input name="typeForListNew"  class="easyui-textbox" data-options="multiline:true" data-options="required:true,missingMessage:'必须填写'" style="width:300px;height:150px" />
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div id="dlg-list-buttons">
+        <a href="javascript:void(0)" class="easyui-linkbutton" style="width:80px;" onclick="SaveList()" iconcls="icon-save">保存</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" style="width:80px;" onclick="javascript:$('#dlgForNewList').dialog('close')" iconcls="icon-cancel">取消</a>
+    </div>
+
+    <!--  ******************************批量添加弹出框--end**************************************  -->
+
+
+
+
+    <script type="text/javascript">
+
+        $(function(){
+
+            /**
+             * 将域名加载进下拉框
+             */
+            $('#CBForDomain').combobox({
+                valueField:'name',
+                textField:'name',
+                url:'$!homeModule.getTarget('/domain/getAllDomain.action')',
+
+            });
+        });
+
+        function SearchContext(){
+            $('#resultContext').datagrid('load',{
+                searchWord:$('#searchWord').val()
+            });
+        }
+
+        function TestLog4j2(){
+            $.ajax({
+                url: '$!homeModule.getTarget('/type/TestLog4j2.action')',
+                type:"POST",
+                dataType:"json",
+                success:function(msg) {
+                    alert("ok");
+                }
+            });
+        }
+
+        /**
+         * 编辑菜单
+         */
+        function editMenu(){
+            var row = $("#resultContext").datagrid("getSelected");
+            if(row){
+                OpenDialog( 'dlgForNewMenu','修改','FromForNew','edit','resultContext');
+            }else{
+                $.messager.alert("提示信息", "请您先选中您要编辑的项目。");
+            }
+
+        }
+
+        /**
+         * easyui-打开某个对话框
+         * @param dialogID 对话框id
+         * @param dialogTitle 要显示的标题
+         * @param formID 要加载的from（编辑操作时补充数据）
+         *  @param methodType 操作类型：new：新增 ， edit：编辑
+         * @param datagridId 数据源id
+         */
+        function OpenDialog( dialogID ,dialogTitle,formID,methodType,datagridId){
+            $("#"+dialogID+"").dialog("open").dialog('setTitle', dialogTitle);
+            $("#"+formID+"").form("clear");
+            if(methodType=="edit"){
+                var row = $("#"+datagridId+"").datagrid("getSelected");
+                del(row,"id","unityLogTypeForNew.id");
+                del(row,"typeName","unityLogTypeForNew.typeName");
+                del(row,"domainName","unityLogTypeForNew.domainName");
+                del(row,"remark","unityLogTypeForNew.remark");
+                del(row,"created","unityLogTypeForNew.created");
+                row["unityLogTypeForNew.created"]=getLocalTime(row["unityLogTypeForNew.created"],'','');
+                if (row) {
+                    $("#"+formID+"").form("load", row);
+                }
+            }
+        }
+
+
+        /**
+         *保存数据
+         * @constructor
+         */
+        function  SaveMenu(){
+            var Formurl ="";
+            var ForNewId = $('#ForNewId').val();
+            if(ForNewId==""){
+                Formurl= '$!homeModule.getTarget('/type/addType.action')';
+            }else{
+                Formurl='$!homeModule.getTarget('/type/editType.action')';
+            }
+            $("#FromForNew").form("submit", {
+                url:Formurl,
+                onsubmit: function () {
+                    return $(this).form("validate");
+                },
+                success: function (result) {
+                    if (result == "1") {
+                        $.messager.alert("提示信息", "操作成功");
+                        $("#dlgForNewMenu").dialog("close");
+                        $("#resultContext").datagrid("load");
+
+                    }else if(result == "-1"){
+                        $.messager.alert("提示信息", "类型和域名和已有数据重复");
+                    }
+                    else {
+                        $.messager.alert("提示信息", "操作失败");
+                    }
+                }
+            });
+        }
+
+        /**
+         *删除数据
+         * @constructor
+         */
+        function DeleteMenu() {
+            var row = $('#resultContext').datagrid('getSelected');
+            if (row) {
+                $.messager.confirm('危险', '您确定要删除本菜单吗？', function (r) {
+                    if (r) {
+                        $.post(' $!homeModule.getTarget('/type/deleteType.action')', { typeId: row.id }, function (result) {
+                            if (result == "1") {
+                                $.messager.alert("提示信息", "操作成功");
+                                $("#resultContext").datagrid("reload");
+                            }
+                            else {
+                                $.messager.alert("提示信息", "操作失败");
+                            }
+                        }, 'json');
+                    }
+                });
+            }else{
+                $.messager.alert("提示信息", " 请您先选中您要删除的菜单。");
+            }
+        }
+        //弹出批量添加框
+        function SaveEntityList(){
+            OpenDialog( 'dlgForNewList','批量添加','FromForNewList','','');
+        }
+
+        //批量保存域名
+        function SaveList(){
+            $("#FromForNewList").form("submit", {
+                url:'$!homeModule.getTarget('/type/addListType.action')',
+                onsubmit: function () {
+                    return $(this).form("validate");
+                },
+                success: function (result) {
+                    if ($.trim(result).replace(/\"/g,"") == "success") {
+                        $.messager.alert("提示信息", "操作成功");
+                        $("#dlgForNewList").dialog("close");
+                        $("#resultContext").datagrid("load");
+                    }
+                    else {
+                        $.messager.alert("提示信息", result);
+                    }
+                }
+            });
+        }
+
+
+
+    </script>
+</div>

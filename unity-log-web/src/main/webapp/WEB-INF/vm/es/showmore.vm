@@ -1,0 +1,251 @@
+#set($title = "查询页面")
+
+
+    <div id="showmore_main_father" style="width:99%; height:730px;background-color: white;font-size: 12px;" >
+        <div id ="showmore_main" style="position:absolute; width:99%; height:730px; overflow:scroll;background-color: white">
+            <div id ="showmore_center" style="width:99%;">showmore_center</div>
+        </div>
+    </div>
+    <div align="center" style=" width:100%;background-color: white">
+        <div style="height:15px;">
+            <img id="img_Loading_up" style="whith:100px;height: 15px;" src="$!homeModule.getTarget("/common/images/loading/l3.gif")"></img>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+
+        /*---------------------检测鼠标滚动---start---------------------*/
+        var scrollFunc=function(e){
+            //var direct=0;
+            e=e || window.event;
+
+            if(e.wheelDelta){//IE/Opera/Chrome
+                if(e.wheelDelta==120) {
+                    mourseMoveUp();
+                } else {
+                    mourseMoveDown();
+                }
+            }else if(e.detail){//Firefox
+
+                if(e.detail==-3) {
+                    mourseMoveUp();
+                }else {
+                    mourseMoveDown();
+                }
+
+            }
+
+        } /*注册事件*/
+
+        if(document.addEventListener){ document.addEventListener('DOMMouseScroll',scrollFunc,false); }
+        window.onmousewheel=document.onmousewheel=scrollFunc;//IE/Opera/Chrome
+        /*---------------------检测鼠标滚动---end---------------------*/
+
+
+        var newmove = 0 ;
+        var oldmove = 0 ;
+        var old_scrollTop=0;
+        var new_scrollTop=0;
+        var count =0;
+
+        $(document).ready(function(){
+
+            /*-------------------有滚轮的滚动事件---------------------*/
+            $("#showmore_main").scroll(function(){
+                var newscrollTop=$("#showmore_main").scrollTop();
+                old_scrollTop=new_scrollTop
+                new_scrollTop=newscrollTop;
+
+            })
+        })
+
+
+        var count = 0;
+        function mourseMoveUp(){
+            oldmove = newmove;
+            newmove= new_scrollTop;
+            if(oldmove == newmove){
+                count=count+1;
+                if(count>20){
+                    ShowInfoUP();
+                    count=0;
+                }
+
+            }else{
+                count = 0;
+            }
+        }
+
+        function mourseMoveDown(){
+            oldmove = newmove;
+            newmove= new_scrollTop;
+            if(oldmove == newmove){
+                count=count+1;
+                if(count>20){
+                    ShowInfoDOWN();
+                    count=0;
+                }
+
+            }else{
+                count = 0;
+            }
+        }
+
+
+
+        var searchMsgJson =$!msg;
+        var domain = "$!searchWords.domain";
+        var created_begain_more_info = "$!searchWords.created_begain_more_info";
+        var localHostIp =" $!searchWords.localHostIp";
+        var upcount = -1;
+        var downcount = 0;
+        var commandtype = "";
+
+
+
+
+        $(function () {
+            var easyuijson = {};
+            var searchMsg = "";
+            var hits = searchMsgJson.hits.hits;
+            var printStr = "";
+            //组合符合easyui格式的json串
+            for (var i = 0; i < hits.length; i++) {
+                hits[i] = hits[i]._source["@message"];
+                printStr =printStr + "<input type='text' style='width:0px;height:1px;'  id='printStrTop'></input >"+ hits[i].context+"</br>";
+            }
+
+            $("#showmore_center").html(printStr);
+            $('#img_Loading_up').hide();
+            findDimensions();
+
+        });
+
+        function ShowInfoUP(){
+            upcount=upcount+1;
+            commandtype="lte";
+            addLogInfo();
+        }
+
+        function ShowInfoDOWN(){
+            downcount=downcount+1;
+            commandtype="gte";
+            addLogInfo();
+        }
+
+        function addLogInfo() {
+            load();
+            $.ajax({
+                type: "POST",
+                data:{
+                    created_begain_more_info : created_begain_more_info,
+                    localHostIp:localHostIp,
+                    domain:domain,
+                    upcount:upcount,
+                    downcount:downcount,
+                    commandtype:commandtype
+                },
+                url: '$!homeModule.getTarget('/es/showMoreLogInfo.action')'+'?esindex=$!esindex'+'&estype=$!estype',
+                dataType: "json",
+                error: function(request) {
+                    $.messager.alert("警告","加载出错！");
+                },
+                success: function(result) {
+
+                    $("#printStrTop").attr("id","printStrTop_old");
+                    var reslutJson = eval("(" + result + ")");
+                    var hits = reslutJson.hits.hits;
+                    var printStr = "";
+                    //组合符合easyui格式的json串
+                    for(var i=0;i<hits.length;i++){
+                        hits[i] = hits[i]._source["@message"];
+
+                        if(commandtype=="gte"){
+                            printStr = printStr + hits[i].context + "</br>" ;
+                        }else{
+                            printStr = hits[i].context + "</br>" + printStr;
+                        }
+
+
+
+                        if(i==(hits.length-1)){
+                            printStr = "<input type='text' style='width:0px;height:1px;'  id='printStrTop'></input >"+hits[i].context+"</br>" +printStr;
+                        }
+
+                    }
+
+                    var htmlString = $("#showmore_center").html();
+                    if(commandtype=="gte"){
+                        htmlString = htmlString +printStr;
+                    }else{
+                        htmlString = printStr +  htmlString ;
+                    }
+
+                    $("#showmore_center").html(htmlString);
+                    disLoad();
+
+                    if(hits.length==0){
+                        if(commandtype=="gte"){
+                            $.messager.alert("警告","已到底！");
+                            downcount=downcount-1;
+                        }else{
+                            $.messager.alert("警告","已到顶！");
+                            upcount=upcount-1;
+                        }
+                        $("#printStrTop_old").attr("id","printStrTop");
+                    }else{
+                        if(commandtype=="lte"){
+                            $("#printStrTop_old").focus();
+                        }
+
+                    }
+
+                }
+            });
+        }
+
+        //弹出加载层
+        function load(){
+                $('#img_Loading_up').show();
+        }
+
+        //取消加载层
+        function disLoad() {
+                $('#img_Loading_up').hide();
+        }
+
+        /*--------------------get windows height---------------------*/
+
+        var winWidth = 0;
+        var winHeight = 0;
+        function findDimensions() //函数：获取尺寸
+        {
+            //获取窗口宽度
+            if (window.innerWidth)
+                winWidth = window.innerWidth;
+            else if ((document.body) && (document.body.clientWidth))
+                winWidth = document.body.clientWidth;
+            //获取窗口高度
+            if (window.innerHeight)
+                winHeight = window.innerHeight;
+            else if ((document.body) && (document.body.clientHeight))
+                winHeight = document.body.clientHeight;
+            //通过深入Document内部对body进行检测，获取窗口大小
+            if (document.documentElement && document.documentElement.clientHeight && document.documentElement.clientWidth)
+            {
+                winHeight = document.documentElement.clientHeight;
+                winWidth = document.documentElement.clientWidth;
+            }
+
+            $("#showmore_main_father").css("height",winHeight*0.95 +"px");
+            $("#showmore_main").css("height",winHeight*0.95 +"px");
+
+        }
+        findDimensions();
+        //调用函数，获取数值
+        window.onresize=findDimensions;
+
+        /*--------------------get windows height------end---------------*/
+    </script>
+

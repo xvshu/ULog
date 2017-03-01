@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <bean id="packageProxyFactoryBean" class="com.el.unity.log.client.aop.PackageProxyFactoryBean">
+        <property name="packages">
+            <list>
+                <!--<value>com.el.unity.log.web</value>-->
+                <value>com.el.unity.log.service</value>
+                <!--<value>com.el.unity.log.common.es</value>-->
+                <value>com.el.common.web.service</value>
+            </list>
+        </property>
+        <property name="log4jDomainValues" value="${unity-log.flume.domain.name}"></property>
+    </bean>
+
+
+</beans>
